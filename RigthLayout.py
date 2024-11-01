@@ -1,17 +1,18 @@
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView
+from PyQt5.QtWidgets import QVBoxLayout, QTableWidgetItem
 from BlueButton import BlueButton
+from PyQt5.QtCore import Qt
+
+from TableStyle import TableStyle
 
 
 class Rigthlayout(QVBoxLayout):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.show_rigth()
-        self.styleTable()
 
     def show_rigth(self):
         # Tabla vacia
-        self.table = QTableWidget()
+        self.table = TableStyle()
         self.table.setColumnCount(5)
         self.table.setHorizontalHeaderLabels(["Algorithm", "Word", "Percentage", "Second", "Time"])
         self.addWidget(self.table)
@@ -20,7 +21,6 @@ class Rigthlayout(QVBoxLayout):
         self.show_image_button = BlueButton("Show Image")
         self.addWidget(self.show_image_button)
 
-
     def add_new_row(self, data):
         # Insertar una nueva fila al final
         row_position = self.table.rowCount()
@@ -28,34 +28,8 @@ class Rigthlayout(QVBoxLayout):
 
         # Añadir datos en cada columna de la nueva fila
         for column, item in enumerate(data):
-            self.table.setItem(row_position, column, QTableWidgetItem(item))
-
-    def styleTable(self):
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.table.setAlternatingRowColors(True)  # Colores alternos en las filas
-        self.table.setStyleSheet("""
-                    QTableWidget {
-                        background-color: #ffffff;  /* Color de fondo general */
-                        alternate-background-color: #e6f2ff;  /* Color de fondo para filas alternas */
-                        border: 1px solid #d3d3d3;
-                    }
-                    QHeaderView::section {
-                        background-color: #41689e;  /* Fondo de encabezado */
-                        color: white;  /* Color del texto del encabezado */
-                        font-weight: bold;
-                        padding: 4px;
-                        border: 1px solid #d3d3d3;
-                    }
-                    QTableWidget::item {
-                        padding: 8px;  /* Espaciado interno de las celdas */
-                        border: 1px solid #d3d3d3;
-                    }
-                    QTableWidget::item:selected {
-                        background-color: #3399ff;  /* Color de fondo para elementos seleccionados */
-                        color: white;
-                    }
-                """)
-
-        # Fuente personalizada para el texto de las celdas
-        font = QFont("Arial", 10)
-        self.table.setFont(font)
+            table_item = QTableWidgetItem(item)
+            table_item.setTextAlignment(Qt.AlignCenter)  # Centrar el texto en la celda
+            table_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # Hacer la celda no editable
+            self.table.setItem(row_position, column, table_item)
+            #self.table.setItem(row_position, column, QTableWidgetItem(item))

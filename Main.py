@@ -6,6 +6,7 @@ from DownLeftArea import DownLeftArea
 from RigthLayout import Rigthlayout
 from SaveFile import SaveFile
 from UpperLeftArea import UpperLeftArea
+from ImageDialog import ImageDialog
 
 
 class MainWindow(QWidget):
@@ -13,7 +14,7 @@ class MainWindow(QWidget):
         super().__init__()
 
         # Window configurations
-        self.setWindowTitle('Ejemplo de Layout')
+        self.setWindowTitle('Recognizer')
         self.setGeometry(100, 100, 1000, 600)
 
         # Layout principal horizontal
@@ -44,11 +45,13 @@ class MainWindow(QWidget):
         self.setLayout(main_layout)
 
         # Triggers
-        self.upper_left_area.browse_button.clicked.connect(self.showPath)
+        self.upper_left_area.browse_button.clicked.connect(self.show_path_and_save_image)
         self.upper_left_area.search_button.clicked.connect(self.searchResults)
-        #falta anadir trigger de show image
+        self.right_layout.show_image_button.clicked.connect(self.showImage)
 
-    def showPath(self):
+
+    def show_path_and_save_image(self):
+        # muestra para seleccionar archivo, tambi[en lo guarda en carpeta input_files
         file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo", "",
                                                    "Archivos (*.mp4 *.jpg *.png *.jpeg *mkv)")
 
@@ -62,17 +65,41 @@ class MainWindow(QWidget):
             print("Algo fallo al abrir el archivo, es muy probable que se presiono 'Cancelar'")
 
     def searchResults(self):
+        #muestra la data que esta siendo enviada por consola
         self.showData()
+        #falta decir a que clase enviara la data
+        #metodo getResult esta hardcodeado, debe de devolverme el resultado de la integracion con otras clases
+        self.result_matrix=self.getResult()
+        #metodo que muestra la nueva fila
         self.showNewRow()
 
     def showNewRow(self):
-        self.right_layout.add_new_row(['1','2','3','4','5'])
+        self.right_layout.add_new_row(self.result_matrix)
+        #implementar para que pasen las filas que devuelvan
 
     def showData(self):
         print(self.upper_left_area.get_video_path(), self.upper_left_area.get_word(),
               self.upper_left_area.get_percentage_label(),
               self.upper_left_area.get_neural_network_model(),
               sep=os.linesep)
+    def showImage(self):
+        # Obtener la fila seleccionada
+        selected_row = self.right_layout.table.currentRow()
+
+        if selected_row == -1:
+            print("Por favor, selecciona una fila primero.")
+            return
+
+        # Ruta de imagen hardcodeada, implementar para pasar
+        #image_path = self.right_layout.table.item(selected_row, 5).text()
+        image_path = 'input_files/meetpoint-meetpoint.png'
+        # Abrir la imagen en un diálogo
+        dialog = ImageDialog(image_path, self)
+        dialog.exec_()
+
+    def getResult(self):
+        #Me deberia devolver el resultado, esto se pondra en las filas
+        return['1','2','3','4','5']
 
 
 if __name__ == '__main__':
