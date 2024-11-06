@@ -7,6 +7,7 @@ from RigthLayout import Rigthlayout
 from SaveFile import SaveFile
 from UpperLeftArea import UpperLeftArea
 from ImageDialog import ImageDialog
+from HeaderWidget import HeaderWidget
 
 
 class MainWindow(QWidget):
@@ -15,7 +16,14 @@ class MainWindow(QWidget):
 
         # Window configurations
         self.setWindowTitle('Recognizer')
-        self.setGeometry(100, 100, 1000, 600)
+        self.setGeometry(100, 100, 1000, 700)
+
+        # Layout para integrar header y main_layout
+        overall_layout = QVBoxLayout()
+
+        # Header widget en la parte superior
+        header_widget = HeaderWidget("./logo.png")
+        overall_layout.addWidget(header_widget)
 
         # Layout principal horizontal
         main_layout = QHBoxLayout()
@@ -41,8 +49,14 @@ class MainWindow(QWidget):
         main_layout.addLayout(left_layout, 1)  # El 1 es el factor de expansión
         main_layout.addLayout(self.right_layout, 3)  # El 3 es el factor de expansión
 
+        # Agregar main_layout a overall_layout
+        overall_layout.addLayout(main_layout)
+
         # Aplicar el layout principal a la ventana
-        self.setLayout(main_layout)
+        #self.setLayout(main_layout)
+
+        # Aplicar el overall layout a la ventana
+        self.setLayout(overall_layout)
 
         # Triggers
         self.upper_left_area.browse_button.clicked.connect(self.show_path_and_save_image)
