@@ -20,7 +20,7 @@ class MainWindow(QWidget):
 
         # Layout para integrar header y main_layout
         overall_layout = QVBoxLayout()
-
+    
         # Header widget en la parte superior
         header_widget = HeaderWidget("./logo.png")
         overall_layout.addWidget(header_widget)
