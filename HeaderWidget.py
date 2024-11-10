@@ -6,19 +6,18 @@ class HeaderWidget(QWidget):
     def __init__(self, logo_path, app_name="JalaRecognizer"):
         super().__init__()
         self.create_header(logo_path, app_name)
-        #self.setStyleSheet("background-color: red; color: white;")  # Background for testing 
-        self.setFixedHeight(50)  # Ajustar altura de la cabecera
+        self.setFixedHeight(50)  # Sets the height of the header
 
     def create_header(self, logo_path, app_name):
-        # Layout vertical 
+        # Vertical Layout 
         main_layout = QVBoxLayout()
         main_layout.setAlignment(Qt.AlignCenter)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Layout Horizontal para logo y nombre
+        # Horizontal Layout for logo and app name
         header_layout = QHBoxLayout()
         header_layout.setAlignment(Qt.AlignCenter)
-        header_layout.setSpacing(0)  # Espacio entre logo y nombre
+        header_layout.setSpacing(0)  # Space between logo and app name
 
         # Logo
         logo_label = QLabel()
@@ -27,19 +26,19 @@ class HeaderWidget(QWidget):
             logo_label.setPixmap(logo_pixmap.scaled(90, 90, Qt.KeepAspectRatio))  
         logo_label.setAlignment(Qt.AlignCenter)
 
-        # Nombre de la app
+        # App name
         colored_name = '<span style="color: #3CB4AC;">Jala</span><span style="color: #4FB7E2;">Recognizer</span>'
         name_label = QLabel(colored_name)
         font = QFont("Arial", 22, QFont.Bold)  
         name_label.setFont(font)
         name_label.setAlignment(Qt.AlignCenter)
 
-        # Agregar widgets a header_layout
+        # Add widgets to header_layout
         header_layout.addWidget(logo_label)
         header_layout.addWidget(name_label)
 
-        # Agregar header layout a main_layout
+        # Add header layout into main_layout
         main_layout.addLayout(header_layout)
 
-        # Aplicar el main layout en widget principal
+        # Set main layout into main widget
         self.setLayout(main_layout)

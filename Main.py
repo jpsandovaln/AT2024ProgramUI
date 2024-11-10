@@ -18,44 +18,40 @@ class MainWindow(QWidget):
         self.setWindowTitle('Recognizer')
         self.setGeometry(100, 100, 1000, 700)
 
-        # Layout para integrar header y main_layout
+        # Layout to integrate header and main_layout
         overall_layout = QVBoxLayout()
     
-        # Header widget en la parte superior
+        # Header widget in the top side
         header_widget = HeaderWidget("./logo.png")
         overall_layout.addWidget(header_widget)
 
-        # Layout principal horizontal
+        # Main Horizontal Layout 
         main_layout = QHBoxLayout()
-        #self.setStyleSheet("background-color: #FFFFFF")
 
-        # Layout principal izquierda
+        # Main left Layout
         left_layout = QVBoxLayout()
 
-        # Área izquierda de labels y botones
+        # Left area of labels and buttons
         self.upper_left_area = UpperLeftArea()
 
-        # Área izquierda de lista de nombres
+        # Left area with names list
         down_left_area = DownLeftArea()
 
-        # Añadir áreas al layout izquierdo
+        # Add areas into left layout
         left_layout.addWidget(self.upper_left_area)
         left_layout.addWidget(down_left_area)
 
-        # Layout derecha para la tabla
+        # Right layout with the table
         self.right_layout = Rigthlayout()
 
-        # Añadir los layouts de la izquierda y derecha al layout principal
-        main_layout.addLayout(left_layout, 1)  # El 1 es el factor de expansión
-        main_layout.addLayout(self.right_layout, 3)  # El 3 es el factor de expansión
+        # Add left and right layouts into the main layout
+        main_layout.addLayout(left_layout, 1)  #  1 is the expansion factor 
+        main_layout.addLayout(self.right_layout, 3)  # 3 is the expansion factor 
 
-        # Agregar main_layout a overall_layout
+        # Add main_layout into overall_layout
         overall_layout.addLayout(main_layout)
 
-        # Aplicar el layout principal a la ventana
-        #self.setLayout(main_layout)
-
-        # Aplicar el overall layout a la ventana
+        # Add overall layout into window
         self.setLayout(overall_layout)
 
         # Triggers
@@ -75,7 +71,7 @@ class MainWindow(QWidget):
             save_file.select_and_save_file(file_path)
             self.upper_left_area.video_path_input.setText(file_path)
         else:
-            QMessageBox.critical(self, "Error", "No se pudo copiar el archivo")
+            QMessageBox.critical(self, "Error", "The file could not be copied")
             print("Algo fallo al abrir el archivo, es muy probable que se presiono 'Cancelar'")
 
     def searchResults(self):
@@ -96,6 +92,7 @@ class MainWindow(QWidget):
               self.upper_left_area.get_percentage_label(),
               self.upper_left_area.get_neural_network_model(),
               sep=os.linesep)
+    
     def showImage(self):
         # Obtener la fila seleccionada
         selected_row = self.right_layout.table.currentRow()
@@ -106,7 +103,7 @@ class MainWindow(QWidget):
 
         # Ruta de imagen hardcodeada, implementar para pasar
         #image_path = self.right_layout.table.item(selected_row, 5).text()
-        image_path = 'input_files/meetpoint-meetpoint.png'
+        image_path = 'input_files/yingYang.jpeg'
         # Abrir la imagen en un diálogo
         dialog = ImageDialog(image_path, self)
         dialog.exec_()
