@@ -1,2 +1,0 @@
-#Install PyQT
-pip install PyQt5
