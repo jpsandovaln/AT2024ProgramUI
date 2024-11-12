@@ -8,11 +8,14 @@ from SaveFile import SaveFile
 from UpperLeftArea import UpperLeftArea
 from ImageDialog import ImageDialog
 from HeaderWidget import HeaderWidget
+import requests
+
 
 
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
+        self.file_path = None
 
         # Window configurations
         self.setWindowTitle('Recognizer')
@@ -68,18 +71,21 @@ class MainWindow(QWidget):
         self.down_left_area.set_model(selected_model)
 
     def show_path_and_save_image(self):
-        # muestra para seleccionar archivo, tambi[en lo guarda en carpeta input_files
+        # muestra para seleccionar archivo, tambien lo guarda en carpeta input_files
         file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo", "",
                                                    "Archivos (*.mp4 *.jpg *.png *.jpeg *mkv)")
 
         # Si se selecciona un archivo, se muestra su ruta en el input
         if file_path:
+            # Call the function to send the file to the API
+            self.file_path = file_path
             save_file = SaveFile()
             save_file.select_and_save_file(file_path)
             self.upper_left_area.video_path_input.setText(file_path)
         else:
             QMessageBox.critical(self, "Error", "The file could not be copied")
             print("Algo fallo al abrir el archivo, es muy probable que se presiono 'Cancelar'")
+
 
     def upload_image_path_and_save(self):
         file_path, _ = QFileDialog.getOpenFileName(self, 'Select Image File', '', 'Images (*.png *.jpg *.jpeg)')
@@ -92,15 +98,117 @@ class MainWindow(QWidget):
             QMessageBox.critical(self, "Error", "The file could not be copied")
             print("Algo fallo al abrir el archivo, es muy probable que se presiono 'Cancelar'")
 
-    def searchResults(self):
-        #muestra la data que esta siendo enviada por consola
-        self.showData()
-        #falta decir a que clase enviara la data
-        #metodo getResult esta hardcodeado, debe de devolverme el resultado de la integracion con otras clases
-        self.result_matrix=self.getResult()
-        #metodo que muestra la nueva fila
-        self.showNewRow()
+    def send_video_to_api(self, file_path):
+        # Endpoint URL
+        url = "http://localhost:9090/api/video-to-images"  # Replace with your actual API URL
 
+        # Prepare the file for the POST request
+        files = {'file': open(file_path, 'rb')}
+
+        try:
+            # Send the request
+            response = requests.post(url, files=files)
+            print(response)
+
+            # Check if the request was successful
+            if response.status_code == 200:
+                return response.json()  # Return JSON response if successful
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+        except Exception as e:
+            print(f"Exception: {e}")
+            return None
+
+    def searchResults(self):
+        # Verifica que se haya seleccionado un archivo
+        if not self.file_path:
+            QMessageBox.critical(self, "Error", "No se ha seleccionado ningún archivo.")
+            return
+
+        # Envía el video a la API y obtiene la respuesta
+        response = self.send_video_to_api(self.file_path)
+        if response and response.get("download_ZIP_URL"):
+            # Extrae la URL de descarga de la respuesta
+            zip_url = response["download_ZIP_URL"]
+
+            # Descarga el archivo ZIP y guarda su ruta absoluta
+            zip_path = self.download_file(zip_url)
+
+            if not zip_path:
+                QMessageBox.critical(self, "Error", "Error al descargar el archivo ZIP.")
+                return
+
+            # Obtiene la palabra del campo de entrada
+            word = self.upper_left_area.word_input.text()  # Campo de texto para la palabra
+            model_type = self.upper_left_area.neural_network_model_combobox.currentText()
+            confidence_threshold = float(self.upper_left_area.percentage_combobox.currentText()) / 100
+
+            if not word:
+                QMessageBox.critical(self, "Error", "No se ha ingresado ninguna palabra.")
+                return
+
+            # Define la URL del endpoint dependiendo del tipo de modelo
+            if model_type == "Gender Recognizer":
+                endpoint = "/gender_recognition"
+            elif model_type == "Object Recognizer":
+                endpoint = "/object_recognition"
+            else:
+                QMessageBox.critical(self, "Error", "Modelo no válido.")
+                return
+
+            # Combina los datos en un objeto
+            combined_data = {
+                "word": word,
+                "model_type": model_type,
+                "confidence_threshold": confidence_threshold,
+                "zip_filename": zip_path  # Enviar la ruta absoluta del ZIP
+            }
+            print(combined_data)
+
+            # Envía los datos al servicio ML
+            ml_service_response = self.send_to_ml_service(combined_data, endpoint)
+            if ml_service_response:
+                print("ML Service Response:", ml_service_response)
+            else:
+                QMessageBox.critical(self, "Error", "No se pudo procesar los datos con el servicio ML.")
+
+        else:
+            QMessageBox.critical(self, "Error", "Error al procesar el video o no se encontró el ZIP URL.")
+
+    def download_file(self, url):
+        try:
+            # Define the output path for the downloaded file
+            local_filename = os.path.join("downloaded_files", os.path.basename(url))
+            os.makedirs(os.path.dirname(local_filename), exist_ok=True)
+
+            # Download the file
+            with requests.get(url, stream=True) as response:
+                if response.status_code == 200:
+                    with open(local_filename, 'wb') as f:
+                        for chunk in response.iter_content(chunk_size=8192):
+                            f.write(chunk)
+                    return os.path.abspath(local_filename)  # Return the absolute path
+                else:
+                    print(f"Error al descargar el archivo. Código de estado: {response.status_code}")
+                    return None
+        except Exception as e:
+            print(f"Error al descargar el archivo: {e}")
+            return None
+
+    def send_to_ml_service(self, data, endpoint):
+        base_url = "http://localhost:5000"
+        url = base_url + endpoint
+        try:
+            response = requests.post(url, json=data)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                print(f"ML Service Error {response.status_code}: {response.text}")
+                return None
+        except Exception as e:
+            print(f"Exception while sending data to ML service: {e}")
+            return None
     def showNewRow(self):
         self.right_layout.add_new_row(self.result_matrix)
         #implementar para que pasen las filas que devuelvan
