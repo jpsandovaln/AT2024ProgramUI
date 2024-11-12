@@ -62,7 +62,7 @@ class UpperLeftArea(QWidget):
         elif selected_model == 'Gender Recognizer':
             self.word_input.addItems(['Male', 'Female'])
         elif selected_model == 'Face Recognizer':
-            self.word_input.addItems(['Person1', 'Person2'])
+            self.word_input.clear()
 
     # Getters
     def get_video_path(self):

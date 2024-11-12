@@ -33,16 +33,17 @@ class MainWindow(QWidget):
 
         # Main left Layout
         left_layout = QVBoxLayout()
-
+        left_layout.setContentsMargins(0,0,0,80)
+        
         # Left area of labels and buttons
         self.upper_left_area = UpperLeftArea()
-
+        
         # Left area with names list
-        down_left_area = DownLeftArea()
-
+        self.down_left_area = DownLeftArea()
+        
         # Add areas into left layout
         left_layout.addWidget(self.upper_left_area)
-        left_layout.addWidget(down_left_area)
+        left_layout.addWidget(self.down_left_area)
 
         # Right layout with the table
         self.right_layout = Rigthlayout()
@@ -61,7 +62,13 @@ class MainWindow(QWidget):
         self.upper_left_area.browse_button.clicked.connect(self.show_path_and_save_image)
         self.upper_left_area.search_button.clicked.connect(self.searchResults)
         self.right_layout.show_image_button.clicked.connect(self.showImage)
+        self.down_left_area.browse_image_button.clicked.connect(self.upload_image_path_and_save)
+        self.upper_left_area.neural_network_model_combobox.currentIndexChanged.connect(self.update_down_left_model)
 
+
+    def update_down_left_model(self):
+        selected_model = self.upper_left_area.get_neural_network_model()
+        self.down_left_area.set_model(selected_model)
 
     def show_path_and_save_image(self):
         # muestra para seleccionar archivo, tambien lo guarda en carpeta input_files
@@ -75,6 +82,18 @@ class MainWindow(QWidget):
             save_file = SaveFile()
             save_file.select_and_save_file(file_path)
             self.upper_left_area.video_path_input.setText(file_path)
+        else:
+            QMessageBox.critical(self, "Error", "The file could not be copied")
+            print("Algo fallo al abrir el archivo, es muy probable que se presiono 'Cancelar'")
+
+
+    def upload_image_path_and_save(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, 'Select Image File', '', 'Images (*.png *.jpg *.jpeg)')
+
+        if file_path:
+            save_file = SaveFile()
+            save_file.select_and_save_file(file_path)
+            self.down_left_area.image_path_input.setText(file_path)
         else:
             QMessageBox.critical(self, "Error", "The file could not be copied")
             print("Algo fallo al abrir el archivo, es muy probable que se presiono 'Cancelar'")

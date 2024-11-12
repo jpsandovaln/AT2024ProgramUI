@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QListWidget
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit,        QListWidget
+from BlueButton import BlueButton
 
 
 class DownLeftArea(QWidget):
@@ -8,14 +9,25 @@ class DownLeftArea(QWidget):
 
     def create_down_left_area(self):
         down_left_layout = QVBoxLayout()
-        self.setStyleSheet(
-            "background-color: #D3D3D3; border: 1px solid black;")  # Color plomo suave con borde naranja
-        # Add list of names
-        name_list = QListWidget()
-        names = ['Joel', 'Diego', 'Jessica', 'Daria', 'Michelle', 'Rhem',
-                 'Joanna', 'Paolo', 'Dayne', 'Josemar', 'Arturo']
-        name_list.addItems(names)
-        down_left_layout.addWidget(name_list)
-
-        # Add layout to widget
+        
+        # Add image upload section
+        image_path_label = QLabel('Provide image for comparison:\n(Only works with Face Recognizer)')
+        self.image_path_input = QLineEdit()
+        self.image_path_input.setReadOnly(True)  # It  doesn't allow to edit
+        self.browse_image_button = BlueButton('Browse Image')
+        self.browse_image_button.setEnabled(False)  # Initially disabled
+        
+        # Adding widgets to layout
+        down_left_layout.addWidget(image_path_label)
+        down_left_layout.addWidget(self.image_path_input)
+        down_left_layout.addWidget(self.browse_image_button)
+        
         self.setLayout(down_left_layout)
+
+    def set_model(self, model_name):
+            self.browse_image_button.setEnabled(model_name == 'Face Recognizer')
+
+    # Getter
+    def get_image_path(self):
+        return self.image_path_input.text()
+        
