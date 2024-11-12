@@ -25,7 +25,7 @@ class UpperLeftArea(QWidget):
         self.neural_network_model_combobox.addItems(['Object Recognizer', 'Gender Recognizer', 'Face Recognizer'])
         self.neural_network_model_combobox.currentIndexChanged.connect(self.update_word_input)
         self.percentage_combobox = QComboBox()
-        self.percentage_combobox.addItems(['10', '20', '50', '70', '90'])
+        self.percentage_combobox.addItems(['10', '20', '50', '70', '80'])
         self.browse_button = BlueButton('Browse')
         self.search_button = BlueButton('Search')
 
