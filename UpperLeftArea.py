@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import  QWidget, QVBoxLayout, QLabel, \
     QLineEdit, QComboBox
-from BlueButton import BlueButton
+from Button import Button
 
 
 class UpperLeftArea(QWidget):
@@ -26,8 +26,8 @@ class UpperLeftArea(QWidget):
         self.neural_network_model_combobox.currentIndexChanged.connect(self.update_word_input)
         self.percentage_combobox = QComboBox()
         self.percentage_combobox.addItems(['10', '20', '50', '70', '80'])
-        self.browse_button = BlueButton('Browse')
-        self.search_button = BlueButton('Search')
+        self.browse_button = Button('Browse')
+        self.search_button = Button('Search')
 
         # Add to the upper left layout
         upper_left_layout.addWidget(video_path_label)

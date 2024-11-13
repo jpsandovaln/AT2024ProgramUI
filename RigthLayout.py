@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QVBoxLayout, QTableWidgetItem
-from BlueButton import BlueButton
+from Button import Button
 from PyQt5.QtCore import Qt
 
 from TableStyle import TableStyle
@@ -18,7 +18,7 @@ class Rigthlayout(QVBoxLayout):
         self.addWidget(self.table)
 
         # Botón inferior de "Show Image"
-        self.show_image_button = BlueButton("Show Image")
+        self.show_image_button = Button("Show Image")
         self.addWidget(self.show_image_button)
 
     def add_new_row(self, data):

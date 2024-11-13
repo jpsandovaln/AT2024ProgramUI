@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit,        QListWidget
-from BlueButton import BlueButton
+from Button import Button
 
 
 class DownLeftArea(QWidget):
@@ -14,7 +14,7 @@ class DownLeftArea(QWidget):
         image_path_label = QLabel('Provide image for comparison:\n(Only works with Face Recognizer)')
         self.image_path_input = QLineEdit()
         self.image_path_input.setReadOnly(True)  # It  doesn't allow to edit
-        self.browse_image_button = BlueButton('Browse Image')
+        self.browse_image_button = Button('Browse Image')
         self.browse_image_button.setEnabled(False)  # Initially disabled
         
         # Adding widgets to layout
