@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import  QWidget, QVBoxLayout, QLabel, \
     QLineEdit, QComboBox
-from Button import Button
+from components.Button import Button
 
 
 class UpperLeftArea(QWidget):

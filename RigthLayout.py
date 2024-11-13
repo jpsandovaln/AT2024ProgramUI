@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QVBoxLayout, QTableWidgetItem
-from Button import Button
+from components.Button import Button
 from PyQt5.QtCore import Qt
 
 from TableStyle import TableStyle

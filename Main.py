@@ -11,7 +11,6 @@ from HeaderWidget import HeaderWidget
 import requests
 
 
-
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -25,7 +24,7 @@ class MainWindow(QWidget):
         overall_layout = QVBoxLayout()
     
         # Header widget in the top side
-        header_widget = HeaderWidget("./logo.png")
+        header_widget = HeaderWidget("./assets/img/logo.png")
         overall_layout.addWidget(header_widget)
 
         # Main Horizontal Layout 

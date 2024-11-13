@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit,        QListWidget
-from Button import Button
+from components.Button import Button
 
 
 class DownLeftArea(QWidget):
