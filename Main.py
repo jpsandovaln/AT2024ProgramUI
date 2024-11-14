@@ -2,11 +2,14 @@ import os
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget, QFileDialog, \
     QMessageBox
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap, QFont
 from components.HeaderWidget import HeaderWidget
 from components.NavWidget import NavWidget
 from components.UpperLeftArea import UpperLeftArea
 from components.DownLeftArea import DownLeftArea
 from components.RigthLayout import Rigthlayout
+from components.CenterLayout import CenterLayout
 from SaveFile import SaveFile
 from ImageDialog import ImageDialog
 import requests
@@ -21,7 +24,7 @@ class MainWindow(QWidget):
         self.setWindowTitle('JalaRecognizer')
         self.setGeometry(100, 100, 1000, 700)
 
-        # Layout to integrate header and main_layout
+        # General Layout
         overall_layout = QVBoxLayout()
         overall_layout.setContentsMargins(0, 0, 0, 10)
         overall_layout.setSpacing(0)
@@ -39,7 +42,7 @@ class MainWindow(QWidget):
 
         # Main left Layout
         left_layout = QVBoxLayout()
-        left_layout.setContentsMargins(0,0,0,80)
+        left_layout.setContentsMargins(0, 0, 0, 80)
         
         # Left area of labels and buttons
         self.upper_left_area = UpperLeftArea()
@@ -54,10 +57,21 @@ class MainWindow(QWidget):
         # Right layout with the table
         self.right_layout = Rigthlayout()
 
-        # Add left and right layouts into the main layout
-        main_layout.addLayout(left_layout, 1)  #  1 is the expansion factor 
-        main_layout.addLayout(self.right_layout, 3)  # 3 is the expansion factor 
+        # Crear una instancia de CenterLayout
+        center_widget = CenterLayout(
+            image_path="./assets/icons/cloud-download.png",
+            label_text="Upload your video and select the object, face, or person (male or female) you want to search for. Using Machine Learning, the system analyzes each frame of the video and provides a list of results where the selected object, face, or person is detected, helping you find exactly what you're looking for in the video."
+        )
 
+        # Initially hide right_layout and show center_widget
+        self.right_widget = QWidget()
+        self.right_widget.setLayout(self.right_layout)  # Asignar el layout a un widget contenedor
+        self.right_widget.hide()  # Inicialmente ocultamos el RightLayout
+
+        # Add the layouts into the main layout
+        main_layout.addLayout(left_layout, 1)  #  1 is the expansion factor 
+        main_layout.addWidget(center_widget, 3, alignment=Qt.AlignCenter)  # 3 is the expansion factor for the center_widget
+        main_layout.addWidget(self.right_widget, 3) 
         # Add main_layout into overall_layout
         overall_layout.addLayout(main_layout)
 
@@ -179,8 +193,14 @@ class MainWindow(QWidget):
             else:
                 QMessageBox.critical(self, "Error", "No se pudo procesar los datos con el servicio ML.")
 
+            # Now hide the label and show the right layout
+            self.video_frame_label.hide()
+            self.right_layout.show()
+
         else:
             QMessageBox.critical(self, "Error", "Error al procesar el video o no se encontró el ZIP URL.")
+        self.center_widget.hide()
+        self.right_widget.show()
 
     def download_file(self, url):
         try:
@@ -210,20 +230,21 @@ class MainWindow(QWidget):
             if response.status_code == 200:
                 return response.json()
             else:
-                print(f"ML Service Error {response.status_code}: {response.text}")
+                print(f"Error al procesar los datos en el servicio ML: {response.status_code}")
                 return None
         except Exception as e:
-            print(f"Exception while sending data to ML service: {e}")
+            print(f"Error al enviar datos al servicio ML: {e}")
             return None
+
     def showNewRow(self):
         self.right_layout.add_new_row(self.result_matrix)
         #implementar para que pasen las filas que devuelvan
 
     def showData(self):
         print(self.upper_left_area.get_video_path(), self.upper_left_area.get_word(),
-              self.upper_left_area.get_percentage_label(),
-              self.upper_left_area.get_neural_network_model(),
-              sep=os.linesep)
+                self.upper_left_area.get_percentage_label(),
+                self.upper_left_area.get_neural_network_model(),
+                sep=os.linesep)
     
     def showImage(self):
         # Obtener la fila seleccionada
