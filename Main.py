@@ -3,6 +3,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget, QFileDialog, \
     QMessageBox
 from components.HeaderWidget import HeaderWidget
+from components.NavWidget import NavWidget
 from components.UpperLeftArea import UpperLeftArea
 from components.DownLeftArea import DownLeftArea
 from components.RigthLayout import Rigthlayout
@@ -22,10 +23,16 @@ class MainWindow(QWidget):
 
         # Layout to integrate header and main_layout
         overall_layout = QVBoxLayout()
+        overall_layout.setContentsMargins(0, 0, 0, 10)
+        overall_layout.setSpacing(0)
     
         # Header widget in the top side
         header_widget = HeaderWidget("./assets/img/logo.png")
         overall_layout.addWidget(header_widget)
+
+        # Nav layout under Header
+        nav_widget = NavWidget()
+        overall_layout.addWidget(nav_widget)
 
         # Main Horizontal Layout 
         main_layout = QHBoxLayout()
