@@ -18,7 +18,7 @@ class MainWindow(QWidget):
         self.file_path = None
 
         # Window configurations
-        self.setWindowTitle('Recognizer')
+        self.setWindowTitle('JalaRecognizer')
         self.setGeometry(100, 100, 1000, 700)
 
         # Layout to integrate header and main_layout

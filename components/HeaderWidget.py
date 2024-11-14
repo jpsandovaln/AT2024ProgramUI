@@ -33,13 +33,13 @@ class HeaderWidget(QWidget):
         logo_label = QLabel()
         logo_pixmap = QPixmap(logo_path)
         if not logo_pixmap.isNull():
-            logo_label.setPixmap(logo_pixmap.scaled(90, 90, Qt.KeepAspectRatio))
+            logo_label.setPixmap(logo_pixmap.scaled(60, 60, Qt.KeepAspectRatio))
         logo_label.setAlignment(Qt.AlignCenter)
 
         # App name
-        colored_name = '<span style="color: #3CB4AC;">Jala</span><span style="color: #4FB7E2;">Recognizer</span>'
+        colored_name = '<span style="color: #3CB4AC; font-weight: 700;">Jala</span><span style="color: #4FB7E2;">Recognizer</span>'
         name_label = QLabel(colored_name)
-        font = QFont("Arial", 22, QFont.Bold)
+        font = QFont("Arial", 22)
         name_label.setFont(font)
         name_label.setAlignment(Qt.AlignCenter)
 

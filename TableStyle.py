@@ -17,7 +17,7 @@ class TableStyle(QTableWidget):
                         border: 1px solid #d3d3d3;
                     }
                     QHeaderView::section {
-                        background-color: #41689e;  /* Fondo de encabezado */
+                        background-color: #209BE8;  /* Fondo de encabezado */
                         color: white;  /* Color del texto del encabezado */
                         font-weight: bold;
                         padding: 4px;
