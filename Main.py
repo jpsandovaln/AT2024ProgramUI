@@ -2,12 +2,12 @@ import os
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget, QFileDialog, \
     QMessageBox
-from DownLeftArea import DownLeftArea
-from RigthLayout import Rigthlayout
+from components.HeaderWidget import HeaderWidget
+from components.UpperLeftArea import UpperLeftArea
+from components.DownLeftArea import DownLeftArea
+from components.RigthLayout import Rigthlayout
 from SaveFile import SaveFile
-from UpperLeftArea import UpperLeftArea
 from ImageDialog import ImageDialog
-from HeaderWidget import HeaderWidget
 import requests
 
 
