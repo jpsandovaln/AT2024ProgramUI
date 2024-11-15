@@ -226,29 +226,36 @@ class MainWindow(QWidget):
                 # Extrae los resultados de la respuesta
                 results = ml_service_response.get('results', [])
 
-                # Inserta cada resultado en la tabla en su respectiva columna
-                for result in results:
-                    algorithm = result.get('algorithm', '')
-                    path = result.get('path', '')
-                    percentage = result.get('percentage', 0.0)
-                    second = result.get('second', '')
-                    word = result.get('word', '')
+                if results:  # Verificar si el diccionario 'results' no está vacío
 
-                    # Tiempo
-                    time = self.seconds_to_hms(second)
+                    # Inserta cada resultado en la tabla en su respectiva columna
+                    for result in results:
+                        algorithm = result.get('algorithm', '')
+                        path = result.get('path', '')
+                        percentage = result.get('percentage', 0.0)
+                        second = result.get('second', '')
+                        word = result.get('word', '')
 
-                    # Añadir valores exttraidos a la tabla
-                    self.result_matrix = [algorithm, word, percentage, second, time]
-                    self.showNewRow()
+                        # Tiempo
+                        time = self.seconds_to_hms(second)
+
+                        # Añadir valores exttraidos a la tabla
+                        self.result_matrix = [algorithm, word, percentage, second, time]
+                        self.showNewRow()
+
+                        self.center_widget.hide()
+                        self.right_widget.show()
+
+                        self.process_complete()
+                
+                else:
+                    self.process_interrupted()
+                    QMessageBox.information(self, "Sin resultados", f"No se encontró {word} en el video.")
             else:
                 QMessageBox.critical(self, "Error", "No se pudo procesar los datos con el servicio ML.")
         else:
             QMessageBox.critical(self, "Error", "Error al procesar el video o no se encontró el ZIP URL.")
 
-        self.center_widget.hide()
-        self.right_widget.show()
-
-        self.process_complete()
 
     def seconds_to_hms(self, seconds):
         if isinstance(seconds, str):
