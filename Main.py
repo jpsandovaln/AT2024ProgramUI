@@ -14,6 +14,7 @@ from SaveFile import SaveFile
 from ImageDialog import ImageDialog
 import requests
 import json
+import zipfile
 
 
 class MainWindow(QWidget):
@@ -248,7 +249,17 @@ class MainWindow(QWidget):
                     with open(local_filename, 'wb') as f:
                         for chunk in response.iter_content(chunk_size=8192):
                             f.write(chunk)
-                    return os.path.abspath(local_filename)  # Return the absolute path
+
+                    # Define the output path for the extracted files
+                    extract_folder = os.path.splitext(local_filename)[0]  # Folder name without the .zip extension
+                    os.makedirs(extract_folder, exist_ok=True)
+
+                    # Extract the ZIP file into the specified folder
+                    with zipfile.ZipFile(local_filename, 'r') as zip_ref:
+                        zip_ref.extractall(extract_folder)
+
+                    print(f"Archivo descomprimido en: {extract_folder}")
+                    return os.path.abspath(local_filename)  # Return the absolute path of the downloaded file
                 else:
                     print(f"Error al descargar el archivo. Código de estado: {response.status_code}")
                     return None
