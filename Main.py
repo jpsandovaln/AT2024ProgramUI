@@ -13,6 +13,7 @@ from components.CenterLayout import CenterLayout
 from SaveFile import SaveFile
 from ImageDialog import ImageDialog
 import requests
+import json
 
 
 class MainWindow(QWidget):
@@ -28,7 +29,7 @@ class MainWindow(QWidget):
         overall_layout = QVBoxLayout()
         overall_layout.setContentsMargins(0, 0, 0, 10)
         overall_layout.setSpacing(0)
-    
+
         # Header widget in the top side
         header_widget = HeaderWidget("./assets/img/logo.png")
         overall_layout.addWidget(header_widget)
@@ -58,7 +59,7 @@ class MainWindow(QWidget):
         self.right_layout = Rigthlayout()
 
         # Crear una instancia de CenterLayout
-        center_widget = CenterLayout(
+        self.center_widget = CenterLayout(
             image_path="./assets/icons/cloud-download.png",
             label_text="Upload your video and select the object, face, or person (male or female) you want to search for. Using Machine Learning, the system analyzes each frame of the video and provides a list of results where the selected object, face, or person is detected, helping you find exactly what you're looking for in the video."
         )
@@ -70,7 +71,7 @@ class MainWindow(QWidget):
 
         # Add the layouts into the main layout
         main_layout.addLayout(left_layout, 1)  #  1 is the expansion factor 
-        main_layout.addWidget(center_widget, 3, alignment=Qt.AlignCenter)  # 3 is the expansion factor for the center_widget
+        main_layout.addWidget(self.center_widget, 3, alignment=Qt.AlignCenter)  # 3 is the expansion factor for the center_widget
         main_layout.addWidget(self.right_widget, 3) 
         # Add main_layout into overall_layout
         overall_layout.addLayout(main_layout)
@@ -89,6 +90,14 @@ class MainWindow(QWidget):
     def update_down_left_model(self):
         selected_model = self.upper_left_area.get_neural_network_model()
         self.down_left_area.set_model(selected_model)
+        # if selected_model == 'Face Recognizer':
+        #     self.down_left_area.show()  # Mostrar el DownLeftArea
+        #     self.upper_left_area.word_label.show()  # Mostrar el word_label
+        #     self.upper_left_area.word_input.show()  # Mostrar el word_input
+        # else:
+        #     self.down_left_area.hide()  # Ocultar el DownLeftArea
+        #     self.upper_left_area.word_label.hide()  # Ocultar el word_label
+        #     self.upper_left_area.word_input.hide()  # Ocultar el word_input
 
     def show_path_and_save_image(self):
         # muestra para seleccionar archivo, tambien lo guarda en carpeta input_files
@@ -120,7 +129,7 @@ class MainWindow(QWidget):
 
     def send_video_to_api(self, file_path):
         # Endpoint URL
-        url = "http://localhost:9090/api/video-to-images"  # Replace with your actual API URL
+        url = "http://localhost:9090/api/video-to-images" 
 
         # Prepare the file for the POST request
         files = {'file': open(file_path, 'rb')}
@@ -148,19 +157,18 @@ class MainWindow(QWidget):
 
         # Envía el video a la API y obtiene la respuesta
         response = self.send_video_to_api(self.file_path)
-        if response and response.get("download_ZIP_URL"):
+        if response and response.get("download_URL"):
             # Extrae la URL de descarga de la respuesta
-            zip_url = response["download_ZIP_URL"]
+            zip_url = response["download_URL"]
 
             # Descarga el archivo ZIP y guarda su ruta absoluta
             zip_path = self.download_file(zip_url)
-
             if not zip_path:
                 QMessageBox.critical(self, "Error", "Error al descargar el archivo ZIP.")
                 return
 
             # Obtiene la palabra del campo de entrada
-            word = self.upper_left_area.word_input.text()  # Campo de texto para la palabra
+            word = self.upper_left_area.word_input.currentText()  # Campo de texto para la palabra
             model_type = self.upper_left_area.neural_network_model_combobox.currentText()
             confidence_threshold = float(self.upper_left_area.percentage_combobox.currentText()) / 100
 
@@ -172,7 +180,7 @@ class MainWindow(QWidget):
             if model_type == "Gender Recognizer":
                 endpoint = "/gender_recognition"
             elif model_type == "Object Recognizer":
-                endpoint = "/object_recognition"
+                endpoint = "/api/recognition"
             else:
                 QMessageBox.critical(self, "Error", "Modelo no válido.")
                 return
@@ -180,11 +188,11 @@ class MainWindow(QWidget):
             # Combina los datos en un objeto
             combined_data = {
                 "word": word,
-                "model_type": model_type,
+                "model_type": "yolo",  # Confirma que "yolo" sea el modelo correcto
                 "confidence_threshold": confidence_threshold,
-                "zip_filename": zip_path  # Enviar la ruta absoluta del ZIP
+                "zip_url": zip_url
             }
-            print(combined_data)
+            print("Datos enviados al servicio ML:", combined_data)  # Para depuración
 
             # Envía los datos al servicio ML
             ml_service_response = self.send_to_ml_service(combined_data, endpoint)
@@ -192,13 +200,9 @@ class MainWindow(QWidget):
                 print("ML Service Response:", ml_service_response)
             else:
                 QMessageBox.critical(self, "Error", "No se pudo procesar los datos con el servicio ML.")
-
-            # Now hide the label and show the right layout
-            self.video_frame_label.hide()
-            self.right_layout.show()
-
         else:
             QMessageBox.critical(self, "Error", "Error al procesar el video o no se encontró el ZIP URL.")
+
         self.center_widget.hide()
         self.right_widget.show()
 
@@ -223,14 +227,23 @@ class MainWindow(QWidget):
             return None
 
     def send_to_ml_service(self, data, endpoint):
-        base_url = "http://localhost:5000"
+        # URL base del servicio ML
+        base_url = "http://localhost:5001"
         url = base_url + endpoint
+        
+        # Agrega el encabezado Content-Type explícitamente (opcional)
+        headers = {'Content-Type': 'application/json'}
+        
         try:
-            response = requests.post(url, json=data)
+            # Envía el diccionario como JSON
+            response = requests.post(url, json=data, headers=headers)
+            
+            # Verifica si la solicitud fue exitosa
             if response.status_code == 200:
                 return response.json()
             else:
-                print(f"Error al procesar los datos en el servicio ML: {response.status_code}")
+                # Muestra el mensaje de error detallado en caso de falla
+                print(f"Error al procesar los datos en el servicio ML: {response.status_code} - {response.text}")
                 return None
         except Exception as e:
             print(f"Error al enviar datos al servicio ML: {e}")
