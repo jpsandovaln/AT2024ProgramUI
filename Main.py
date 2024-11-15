@@ -1,12 +1,10 @@
 import os
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget, QFileDialog, QMessageBox, QProgressDialog
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.QtGui import QPixmap, QFont
+from PyQt5.QtCore import Qt
 from components.HeaderWidget import HeaderWidget
 from components.NavWidget import NavWidget
 from components.UpperLeftArea import UpperLeftArea
-from components.DownLeftArea import DownLeftArea
 from components.RigthLayout import Rigthlayout
 from components.CenterLayout import CenterLayout
 from SaveFile import SaveFile
@@ -14,6 +12,7 @@ from ImageDialog import ImageDialog
 import requests
 import json
 import zipfile
+from views.video_to_video import VideoToVideoWindow
 
 
 class MainWindow(QWidget):
@@ -35,8 +34,14 @@ class MainWindow(QWidget):
         overall_layout.addWidget(header_widget)
 
         # Nav layout under Header
-        nav_widget = NavWidget()
-        overall_layout.addWidget(nav_widget)
+        self.nav_widget = NavWidget()
+        overall_layout.addWidget(self.nav_widget)
+
+        # Conectar la señal del right_arrow_clicked con el método de apertura de una nueva ventana
+        self.nav_widget.left_arrow_clicked.connect(self.open_right_window)
+        self.nav_widget.right_arrow_clicked.connect(self.open_right_window)
+
+        self.update_function_name('Video Frame Analyzer')
 
         # Main Horizontal Layout 
         main_layout = QHBoxLayout()
@@ -82,17 +87,31 @@ class MainWindow(QWidget):
         self.upper_left_area.browse_image_button.clicked.connect(self.upload_image_path_and_save)
 
 
-    # def update_down_left_model(self):
-    #     selected_model = self.upper_left_area.get_neural_network_model()
-    #     self.down_left_area.set_model(selected_model)
-        # if selected_model == 'Face Recognizer':
-        #     self.down_left_area.show()  # Mostrar el DownLeftArea
-        #     self.upper_left_area.word_label.show()  # Mostrar el word_label
-        #     self.upper_left_area.word_input.show()  # Mostrar el word_input
-        # else:
-        #     self.down_left_area.hide()  # Ocultar el DownLeftArea
-        #     self.upper_left_area.word_label.hide()  # Ocultar el word_label
-        #     self.upper_left_area.word_input.hide()  # Ocultar el word_input
+    def open_right_window(self):
+        # Importar VideoToVideoWindow solo cuando sea necesario
+        from views.video_to_video import VideoToVideoWindow
+
+        # Cerrar la ventana principal
+        self.close()
+
+        # Crear y mostrar la nueva ventana
+        self.new_window = VideoToVideoWindow()
+        self.new_window.show()
+
+    def open_left_window(self):
+        # Importar VideoToVideoWindow solo cuando sea necesario
+        from views.video_to_video import VideoToVideoWindow
+
+        # Cerrar la ventana principal
+        self.close()
+
+        # Crear y mostrar la nueva ventana
+        self.new_window = VideoToVideoWindow()
+        self.new_window.show()
+
+    def update_function_name(self, new_name):
+        # Llamar al método del NavWidget para actualizar el nombre
+        self.nav_widget.update_feature_name(new_name)
 
     def show_path_and_save_image(self):
         # muestra para seleccionar archivo, tambien lo guarda en carpeta input_files
@@ -358,7 +377,6 @@ class MainWindow(QWidget):
         # Cierra el cuadro de diálogo
         self.progress_dialog.close()
         QMessageBox.information(self, "Completado", "El proceso ha finalizado con éxito.")
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

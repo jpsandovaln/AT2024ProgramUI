@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QSizePoli
 from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtCore import Qt
 
+
 class HeaderWidget(QWidget):
     def __init__(self, logo_path, app_name="JalaRecognizer"):
         super().__init__()
