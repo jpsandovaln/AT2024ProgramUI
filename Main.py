@@ -162,11 +162,16 @@ class MainWindow(QWidget):
             # Extrae la URL de descarga de la respuesta
             zip_url = response["download_URL"]
 
-            # Descarga el archivo ZIP y guarda su ruta absoluta
-            zip_path = self.download_file(zip_url)
-            if not zip_path:
+            # Descarga el archivo ZIP y guarda su ruta absoluta, el folder extraido y el nombre del zip file
+            file_info = self.download_file(zip_url)
+
+            # Verifica si la descarga falló
+            if not file_info:
                 QMessageBox.critical(self, "Error", "Error al descargar el archivo ZIP.")
                 return
+            
+            # Guarda la información del archivo descargado en la clase
+            self.downloaded_file_info = file_info  # Aquí guardamos la información para usarla en la función showImage
 
             # Obtiene la palabra del campo de entrada
             word = self.upper_left_area.word_input.currentText()  # Campo de texto para la palabra
@@ -258,8 +263,15 @@ class MainWindow(QWidget):
                     with zipfile.ZipFile(local_filename, 'r') as zip_ref:
                         zip_ref.extractall(extract_folder)
 
+                    print(f"Archivo descargado en: {local_filename}")
                     print(f"Archivo descomprimido en: {extract_folder}")
-                    return os.path.abspath(local_filename)  # Return the absolute path of the downloaded file
+                    
+                    # Return a dictionary with useful information
+                    return {
+                        "zip_name": os.path.basename(local_filename),  # Name of the ZIP file
+                        "zip_path": os.path.abspath(local_filename),  # Absolute path of the ZIP file
+                        "extract_folder": os.path.abspath(extract_folder),  # Path to the extracted folder
+                    }
                 else:
                     print(f"Error al descargar el archivo. Código de estado: {response.status_code}")
                     return None
@@ -308,12 +320,23 @@ class MainWindow(QWidget):
             print("Por favor, selecciona una fila primero.")
             return
 
-        # Ruta de imagen hardcodeada, implementar para pasar
-        #image_path = self.right_layout.table.item(selected_row, 5).text()
-        image_path = 'input_files/yingYang.jpeg'
+        # Obtener el dato de la columna 4 (second) de la fila seleccionada
+        image_name = self.right_layout.table.item(selected_row, 3).text() + ".jpg"
+
+        # Construir la ruta de la imagen usando la carpeta de extracción
+        file_info = self.downloaded_file_info
+        image_path = os.path.join(file_info["extract_folder"], image_name)
+
+        # Verificar si la imagen existe
+        if not os.path.exists(image_path):
+            print(f"No se encontró la imagen: {image_path}")
+            QMessageBox.warning(self, "Advertencia", f"No se encontró la imagen: {image_path}")
+            return
+
         # Abrir la imagen en un diálogo
         dialog = ImageDialog(image_path, self)
         dialog.exec_()
+
 
     def getResult(self):
         #Me deberia devolver el resultado, esto se pondra en las filas
