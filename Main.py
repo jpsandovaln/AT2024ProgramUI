@@ -317,7 +317,7 @@ class MainWindow(QWidget):
         selected_row = self.right_layout.table.currentRow()
 
         if selected_row == -1:
-            print("Por favor, selecciona una fila primero.")
+            QMessageBox.critical(self, "Error", "Select a row first.")
             return
 
         # Obtener el dato de la columna 4 (second) de la fila seleccionada
