@@ -1,9 +1,8 @@
+# Rigthlayout.py
 from PyQt5.QtWidgets import QVBoxLayout, QTableWidgetItem
 from .Button import Button
 from PyQt5.QtCore import Qt
-
 from TableStyle import TableStyle
-
 
 class Rigthlayout(QVBoxLayout):
     def __init__(self, parent=None):
@@ -28,8 +27,12 @@ class Rigthlayout(QVBoxLayout):
 
         # Añadir datos en cada columna de la nueva fila
         for column, item in enumerate(data):
+
+            # Convertir item a str si no es una cadena
+            if isinstance(item, (float, int)):  # Si el valor es float o int
+                item = str(item)  # Convertirlo a string
+
             table_item = QTableWidgetItem(item)
             table_item.setTextAlignment(Qt.AlignCenter)  # Centrar el texto en la celda
             table_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # Hacer la celda no editable
-            self.table.setItem(row_position, column, table_item)
-            #self.table.setItem(row_position, column, QTableWidgetItem(item))
+            self.table.setItem(row_position, column, table_item)  # Establecer el ítem en la celda

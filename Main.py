@@ -178,9 +178,11 @@ class MainWindow(QWidget):
 
             # Define la URL del endpoint dependiendo del tipo de modelo
             if model_type == "Gender Recognizer":
-                endpoint = "/gender_recognition"
+                endpoint = "/api/recognition"
+                model_type_to_send = "gender"
             elif model_type == "Object Recognizer":
                 endpoint = "/api/recognition"
+                model_type_to_send = "object"
             else:
                 QMessageBox.critical(self, "Error", "Modelo no válido.")
                 return
@@ -188,7 +190,7 @@ class MainWindow(QWidget):
             # Combina los datos en un objeto
             combined_data = {
                 "word": word,
-                "model_type": "yolo",  # Confirma que "yolo" sea el modelo correcto
+                "model_type": model_type_to_send,
                 "confidence_threshold": confidence_threshold,
                 "zip_url": zip_url
             }
@@ -198,6 +200,21 @@ class MainWindow(QWidget):
             ml_service_response = self.send_to_ml_service(combined_data, endpoint)
             if ml_service_response:
                 print("ML Service Response:", ml_service_response)
+                
+                # Extrae los resultados de la respuesta
+                results = ml_service_response.get('results', [])
+
+                # Inserta cada resultado en la tabla en su respectiva columna
+                for result in results:
+                    algorithm = result.get('algorithm', '')
+                    path = result.get('path', '')
+                    percentage = result.get('percentage', 0.0)
+                    second = result.get('second', '')
+                    word = result.get('word', '')
+
+                    # Añadir valores exttraidos a la tabla
+                    self.result_matrix = [algorithm, word, percentage, second, second]
+                    self.showNewRow()
             else:
                 QMessageBox.critical(self, "Error", "No se pudo procesar los datos con el servicio ML.")
         else:
