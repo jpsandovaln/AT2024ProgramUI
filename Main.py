@@ -1,8 +1,7 @@
 import os
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget, QFileDialog, \
-    QMessageBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget, QFileDialog, QMessageBox, QProgressDialog
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QPixmap, QFont
 from components.HeaderWidget import HeaderWidget
 from components.NavWidget import NavWidget
@@ -156,6 +155,9 @@ class MainWindow(QWidget):
             QMessageBox.critical(self, "Error", "No se ha seleccionado ningún archivo.")
             return
 
+        # Process Window initialized
+        self.start_process()
+
         # Envía el video a la API y obtiene la respuesta
         response = self.send_video_to_api(self.file_path)
         if response and response.get("download_URL"):
@@ -231,6 +233,8 @@ class MainWindow(QWidget):
 
         self.center_widget.hide()
         self.right_widget.show()
+
+        self.process_complete()
 
     def seconds_to_hms(self, seconds):
         if isinstance(seconds, str):
@@ -341,6 +345,24 @@ class MainWindow(QWidget):
     def getResult(self):
         #Me deberia devolver el resultado, esto se pondra en las filas
         return['1','2','3','4','5']
+    
+    def start_process(self):
+        # Crea el cuadro de diálogo "Procesando"
+        self.progress_dialog = QProgressDialog("Procesando, por favor espere...", None, 0, 0, self)
+        self.progress_dialog.setWindowModality(Qt.ApplicationModal)
+        self.progress_dialog.setCancelButtonText(None)
+        self.progress_dialog.setWindowTitle("Procesando")
+        self.progress_dialog.setRange(0, 0)  # Indeterminado
+        self.progress_dialog.show()
+    
+    def process_interrupted(self):
+        # Interrumpe proceso y cierra cuadro de diálogo
+        self.process_dialog.close()
+
+    def process_complete(self):
+        # Cierra el cuadro de diálogo
+        self.progress_dialog.close()
+        QMessageBox.information(self, "Completado", "El proceso ha finalizado con éxito.")
 
 
 if __name__ == '__main__':
