@@ -48,12 +48,8 @@ class MainWindow(QWidget):
         # Left area of labels and buttons
         self.upper_left_area = UpperLeftArea()
         
-        # Left area with names list
-        self.down_left_area = DownLeftArea()
-        
         # Add areas into left layout
         left_layout.addWidget(self.upper_left_area)
-        left_layout.addWidget(self.down_left_area)
 
         # Right layout with the table
         self.right_layout = Rigthlayout()
@@ -83,13 +79,12 @@ class MainWindow(QWidget):
         self.upper_left_area.browse_button.clicked.connect(self.show_path_and_save_image)
         self.upper_left_area.search_button.clicked.connect(self.searchResults)
         self.right_layout.show_image_button.clicked.connect(self.showImage)
-        self.down_left_area.browse_image_button.clicked.connect(self.upload_image_path_and_save)
-        self.upper_left_area.neural_network_model_combobox.currentIndexChanged.connect(self.update_down_left_model)
+        self.upper_left_area.browse_image_button.clicked.connect(self.upload_image_path_and_save)
 
 
-    def update_down_left_model(self):
-        selected_model = self.upper_left_area.get_neural_network_model()
-        self.down_left_area.set_model(selected_model)
+    # def update_down_left_model(self):
+    #     selected_model = self.upper_left_area.get_neural_network_model()
+    #     self.down_left_area.set_model(selected_model)
         # if selected_model == 'Face Recognizer':
         #     self.down_left_area.show()  # Mostrar el DownLeftArea
         #     self.upper_left_area.word_label.show()  # Mostrar el word_label

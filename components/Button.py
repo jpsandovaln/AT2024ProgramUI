@@ -26,3 +26,27 @@ class Button(QPushButton):
                                             stop:1 rgba(32, 155, 232, 255));
                     }
                 """)
+
+class SearchButton(QPushButton):
+    def __init__(self, text='', parent=None):
+        super().__init__(text, parent)
+        self.set_style()
+        self.setCursor(QCursor(Qt.PointingHandCursor))
+
+    def set_style(self):
+        self.setStyleSheet("""
+                    SearchButton {
+                        background-color: #209BE8;
+                        color: #ffffff;
+                        border-radius: 13px;
+                        padding: 5px 10px;
+                        font-size: 14px;
+                        font-weight: bold;
+                        margin-top: 20px;
+                    }
+                    SearchButton:hover {
+                        background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0,
+                                            stop:0 rgba(74, 216, 181, 255),
+                                            stop:1 rgba(32, 155, 232, 255));
+                    }
+                """)
