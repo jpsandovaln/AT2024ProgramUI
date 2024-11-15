@@ -212,8 +212,11 @@ class MainWindow(QWidget):
                     second = result.get('second', '')
                     word = result.get('word', '')
 
+                    # Tiempo
+                    time = self.seconds_to_hms(second)
+
                     # Añadir valores exttraidos a la tabla
-                    self.result_matrix = [algorithm, word, percentage, second, second]
+                    self.result_matrix = [algorithm, word, percentage, second, time]
                     self.showNewRow()
             else:
                 QMessageBox.critical(self, "Error", "No se pudo procesar los datos con el servicio ML.")
@@ -222,6 +225,16 @@ class MainWindow(QWidget):
 
         self.center_widget.hide()
         self.right_widget.show()
+
+    def seconds_to_hms(self, seconds):
+        if isinstance(seconds, str):
+            seconds = int(seconds)  # Convierte de cadena a entero si es necesario
+
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds = seconds % 60
+
+        return f"{hours:02}:{minutes:02}:{seconds:02}"
 
     def download_file(self, url):
         try:
