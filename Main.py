@@ -65,17 +65,18 @@ class MainWindow(QWidget):
         self.down_left_area.browse_image_button.clicked.connect(self.upload_image_path_and_save)
         self.upper_left_area.neural_network_model_combobox.currentIndexChanged.connect(self.update_down_left_model)
 
-
+    #Update down left model after change
     def update_down_left_model(self):
         selected_model = self.upper_left_area.get_neural_network_model()
         self.down_left_area.set_model(selected_model)
 
+    #Shows path of the selected file
     def show_path_and_save_image(self):
-        # muestra para seleccionar archivo, tambien lo guarda en carpeta input_files
-        file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo", "",
-                                                   "Archivos (*.mp4 *.jpg *.png *.jpeg *mkv)")
+        # sample to select file, also saves to input_files folder
+        file_path, _ = QFileDialog.getOpenFileName(self, "Select file", "",
+                                                   "Files (*.mp4 *.jpg *.png *.jpeg *mkv)")
 
-        # Si se selecciona un archivo, se muestra su ruta en el input
+        # If a file is selected it path shows in the input field
         if file_path:
             # Call the function to send the file to the API
             self.file_path = file_path
@@ -84,9 +85,9 @@ class MainWindow(QWidget):
             self.upper_left_area.video_path_input.setText(file_path)
         else:
             QMessageBox.critical(self, "Error", "The file could not be copied")
-            print("Algo fallo al abrir el archivo, es muy probable que se presiono 'Cancelar'")
+            print("Something failed opening the file, most likely 'Cancel' button was pressed.")
 
-
+    #Upload file and  save it in the project directory
     def upload_image_path_and_save(self):
         file_path, _ = QFileDialog.getOpenFileName(self, 'Select Image File', '', 'Images (*.png *.jpg *.jpeg)')
 
@@ -96,8 +97,9 @@ class MainWindow(QWidget):
             self.down_left_area.image_path_input.setText(file_path)
         else:
             QMessageBox.critical(self, "Error", "The file could not be copied")
-            print("Algo fallo al abrir el archivo, es muy probable que se presiono 'Cancelar'")
+            print("Something failed opening the file, most likely 'Cancel' button was pressed.")
 
+    #Sends the selected video to converter api
     def send_video_to_api(self, file_path):
         # Endpoint URL
         url = "http://localhost:9090/api/video-to-images"  # Replace with your actual API URL
@@ -119,63 +121,64 @@ class MainWindow(QWidget):
         except Exception as e:
             print(f"Exception: {e}")
             return None
-
+    #Function that triggers the flow to converter and machine learning api
     def searchResults(self):
-        # Verifica que se haya seleccionado un archivo
+        # Verifies that a file was selected
         if not self.file_path:
-            QMessageBox.critical(self, "Error", "No se ha seleccionado ningún archivo.")
+            QMessageBox.critical(self, "Error", "No file selected")
             return
 
-        # Envía el video a la API y obtiene la respuesta
+        # Send video to converter api and obtains the response
         response = self.send_video_to_api(self.file_path)
         if response and response.get("download_ZIP_URL"):
-            # Extrae la URL de descarga de la respuesta
+            # Extract the download url from the response
             zip_url = response["download_ZIP_URL"]
 
-            # Descarga el archivo ZIP y guarda su ruta absoluta
+            # Downloads the zip file and save the absolute path
             zip_path = self.download_file(zip_url)
 
             if not zip_path:
                 QMessageBox.critical(self, "Error", "Error al descargar el archivo ZIP.")
                 return
 
-            # Obtiene la palabra del campo de entrada
-            word = self.upper_left_area.word_input.text()  # Campo de texto para la palabra
+            # Obtains the word from the input
+            word = self.upper_left_area.word_input.text()  # Text field to word
             model_type = self.upper_left_area.neural_network_model_combobox.currentText()
             confidence_threshold = float(self.upper_left_area.percentage_combobox.currentText()) / 100
 
             if not word:
-                QMessageBox.critical(self, "Error", "No se ha ingresado ninguna palabra.")
+                QMessageBox.critical(self, "Error", "No word inserted")
                 return
 
-            # Define la URL del endpoint dependiendo del tipo de modelo
+            # Defines the url depending of the model selected
             if model_type == "Gender Recognizer":
                 endpoint = "/gender_recognition"
             elif model_type == "Object Recognizer":
                 endpoint = "/object_recognition"
             else:
-                QMessageBox.critical(self, "Error", "Modelo no válido.")
+                QMessageBox.critical(self, "Error", "Not valid model.")
                 return
 
-            # Combina los datos en un objeto
+            # Combines data in an object
             combined_data = {
                 "word": word,
                 "model_type": model_type,
                 "confidence_threshold": confidence_threshold,
-                "zip_filename": zip_path  # Enviar la ruta absoluta del ZIP
+                "zip_filename": zip_path  # Send absolute path
             }
             print(combined_data)
 
-            # Envía los datos al servicio ML
+            # Send data to Machine Learning service
             ml_service_response = self.send_to_ml_service(combined_data, endpoint)
             if ml_service_response:
                 print("ML Service Response:", ml_service_response)
             else:
-                QMessageBox.critical(self, "Error", "No se pudo procesar los datos con el servicio ML.")
+                QMessageBox.critical(self, "Error", "The data could not be processed with the ML service.")
 
         else:
-            QMessageBox.critical(self, "Error", "Error al procesar el video o no se encontró el ZIP URL.")
+            QMessageBox.critical(self, "Error", "Error processing video or ZIP URL not found.")
 
+    #Downloads file from the obtained url
     def download_file(self, url):
         try:
             # Define the output path for the downloaded file
@@ -190,12 +193,13 @@ class MainWindow(QWidget):
                             f.write(chunk)
                     return os.path.abspath(local_filename)  # Return the absolute path
                 else:
-                    print(f"Error al descargar el archivo. Código de estado: {response.status_code}")
+                    print(f"Error downloading file. Status code: {response.status_code}")
                     return None
         except Exception as e:
-            print(f"Error al descargar el archivo: {e}")
+            print(f"Error downloading the file: {e}")
             return None
 
+    #Sends combined data to Machine Learning service
     def send_to_ml_service(self, data, endpoint):
         base_url = "http://localhost:5000"
         url = base_url + endpoint
@@ -209,31 +213,35 @@ class MainWindow(QWidget):
         except Exception as e:
             print(f"Exception while sending data to ML service: {e}")
             return None
+    #Shows new row with data
     def showNewRow(self):
         self.right_layout.add_new_row(self.result_matrix)
-        #implementar para que pasen las filas que devuelvan
+        #Implement to show the obtained data
 
+    #Shows the data in the columns
     def showData(self):
         print(self.upper_left_area.get_video_path(), self.upper_left_area.get_word(),
               self.upper_left_area.get_percentage_label(),
               self.upper_left_area.get_neural_network_model(),
               sep=os.linesep)
-    
+
+    #Shows the image of the selected row
     def showImage(self):
-        # Obtener la fila seleccionada
+        # Obtain the selected row
         selected_row = self.right_layout.table.currentRow()
 
         if selected_row == -1:
             print("Por favor, selecciona una fila primero.")
             return
 
-        # Ruta de imagen hardcodeada, implementar para pasar
+        # Hardcoded image, implements
         #image_path = self.right_layout.table.item(selected_row, 5).text()
         image_path = 'input_files/yingYang.jpeg'
         # Abrir la imagen en un diálogo
         dialog = ImageDialog(image_path, self)
         dialog.exec_()
 
+    #Obtain the result to show in the row
     def getResult(self):
         #Me deberia devolver el resultado, esto se pondra en las filas
         return['1','2','3','4','5']

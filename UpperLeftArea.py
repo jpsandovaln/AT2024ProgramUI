@@ -1,3 +1,14 @@
+#
+# @upperleftarea.py Copyright (c) 2021 Jalasoft.
+# 2643 Av Melchor Perez de Olguin, Colquiri Sud, Cochabamba, Bolivia.
+# All rights reserved. #
+# This software is the confidential and proprietary information of
+# Jalasoft, ("Confidential Information"). You shall not
+# disclose such Confidential Information and shall use it only in
+# accordance with the terms of the license agreement you entered into
+# with Jalasoft.
+#
+
 from PyQt5.QtWidgets import  QWidget, QVBoxLayout, QLabel, \
     QLineEdit, QComboBox
 from BlueButton import BlueButton
@@ -9,6 +20,7 @@ class UpperLeftArea(QWidget):
         super().__init__()
         self.create_upper_left_area()
 
+    #Sets the structure of the upper left area
     def create_upper_left_area(self):
         upper_left_layout = QVBoxLayout()
 

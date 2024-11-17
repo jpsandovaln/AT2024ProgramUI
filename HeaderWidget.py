@@ -1,3 +1,14 @@
+#
+# @headerwidget.py Copyright (c) 2021 Jalasoft.
+# 2643 Av Melchor Perez de Olguin, Colquiri Sud, Cochabamba, Bolivia.
+# All rights reserved. #
+# This software is the confidential and proprietary information of
+# Jalasoft, ("Confidential Information"). You shall not
+# disclose such Confidential Information and shall use it only in
+# accordance with the terms of the license agreement you entered into
+# with Jalasoft.
+#
+
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtCore import Qt
@@ -8,6 +19,7 @@ class HeaderWidget(QWidget):
         self.create_header(logo_path, app_name)
         self.setFixedHeight(50)  # Sets the height of the header
 
+    #Function to set the structure of the header
     def create_header(self, logo_path, app_name):
         # Vertical Layout 
         main_layout = QVBoxLayout()
