@@ -2,7 +2,7 @@
 from PyQt5.QtWidgets import QVBoxLayout, QTableWidgetItem
 from .Button import Button
 from PyQt5.QtCore import Qt
-from TableStyle import TableStyle
+from components.TableStyle import TableStyle
 
 class Rigthlayout(QVBoxLayout):
     def __init__(self, parent=None):
@@ -36,3 +36,6 @@ class Rigthlayout(QVBoxLayout):
             table_item.setTextAlignment(Qt.AlignCenter)  # Centrar el texto en la celda
             table_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # Hacer la celda no editable
             self.table.setItem(row_position, column, table_item)  # Establecer el ítem en la celda
+    
+    def clear_rows(self):
+        self.table.setRowCount(0) 

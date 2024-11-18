@@ -19,7 +19,7 @@ class CenterLayout(QWidget):
             image_label.setPixmap(image_pixmap.scaled(180, 180, Qt.KeepAspectRatio))
         image_label.setAlignment(Qt.AlignCenter)
         image_label.setFixedHeight(180)
-        
+
         # Texto
         video_frame_label = QLabel(label_text)
         video_frame_label.setAlignment(Qt.AlignCenter)
@@ -30,6 +30,13 @@ class CenterLayout(QWidget):
         # Añadir widgets al layout
         layout.addWidget(image_label)
         layout.addWidget(video_frame_label)
+
+        print(f"Label text received: {label_text}")  # Depuración
         
         # Establecer layout en el widget
         self.setLayout(layout)
+
+        # Asegurarse de que los cambios se apliquen correctamente
+        self.updateGeometry()
+
+
