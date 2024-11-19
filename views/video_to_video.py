@@ -6,11 +6,10 @@ from components.NavWidget import NavWidget
 from components.UpperLeftArea2 import UpperLeftArea2
 from components.RigthLayout import Rigthlayout
 from components.CenterLayout import CenterLayout
-from api.api_requests import send_to_ConvertService, send_to_MLservice
+from api.api_requests import send_to_ConvertService_VideoToVideo
 from utils.file_utils import download_file
 from utils.SaveFile import SaveFile
 from utils.ImageDialog import ImageDialog
-from logic.video_processing import seconds_to_hms
 
 class VideoToVideoView(QWidget):
     def __init__(self):
@@ -96,16 +95,58 @@ class VideoToVideoView(QWidget):
         self.nav_widget.update_feature_name(new_name)
 
     def show_path_and_save_image(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo", "", "Archivos (*.mp4 *.jpg *.png *.jpeg *mkv)")
-        if file_path:
+        self.file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo", "", "Archivos (*.mp4 *.jpg *.png *.jpeg *mkv)")
+        if self.file_path:
             save_file = SaveFile()
-            save_file.select_and_save_file(file_path)
-            self.upper_left_area.video_path_input.setText(file_path)
+            save_file.select_and_save_file(self.file_path)
+            self.upper_left_area.video_path_input.setText(self.file_path)
         else:
             QMessageBox.critical(self, "Error", "The file could not be copied")
 
-
     def searchResults(self):
-        # Lógica para manejar la búsqueda
-        print ('BOTON BUSCAR')
-        pass
+
+        # Verifica que se haya seleccionado un archivo
+        if not self.file_path:
+            QMessageBox.critical(self, "Error", "No se ha seleccionado ningún archivo.")
+            return
+        
+        format = self.upper_left_area.outputformat_input.currentText()
+        if not format:
+            QMessageBox.critical(self, "Error", "No se ha seleccionado ningún formato de salida.")
+            return
+
+        fps = self.upper_left_area.fps_input.text()
+        vcodec = self.upper_left_area.vcodec_input.currentText()
+        acodec = self.upper_left_area.acodec_input.currentText()
+        achannel = self.upper_left_area.achannel_input.currentText()
+
+        # Clear the rows before processing
+        self.right_layout.clear_rows()
+
+        # Process Window initialized
+        self.start_process()
+
+        endpoint = '/api/video-to-video'
+        # Envía el video a la API y obtiene la respuesta
+        response = send_to_ConvertService_VideoToVideo(self.file_path, endpoint, format, fps, vcodec, acodec, achannel)
+        print (response)
+        self.process_complete()
+        
+
+    def start_process(self):
+        # Crea el cuadro de diálogo "Procesando"
+        self.progress_dialog = QProgressDialog("Procesando, por favor espere...", None, 0, 0, self)
+        self.progress_dialog.setWindowModality(Qt.ApplicationModal)
+        self.progress_dialog.setCancelButtonText(None)
+        self.progress_dialog.setWindowTitle("Procesando")
+        self.progress_dialog.setRange(0, 0)  # Indeterminado
+        self.progress_dialog.show()
+        
+    def process_interrupted(self):
+        # Interrumpe proceso y cierra cuadro de diálogo
+        self.progress_dialog.close()
+
+    def process_complete(self):
+        # Cierra el cuadro de diálogo
+        self.progress_dialog.close()
+        QMessageBox.information(self, "Completado", "El proceso ha finalizado con éxito.")

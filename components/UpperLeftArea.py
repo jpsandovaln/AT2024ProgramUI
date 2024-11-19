@@ -62,12 +62,9 @@ class UpperLeftArea(QWidget):
         self.word_input.clear()
 
         if selected_model == 'Object Recognizer':
-            self.word_input.addItems([
-            "background", "aeroplane", "bicycle", "bird", "boat",
-            "bottle", "bus", "car", "cat", "chair", "cow",
-            "diningtable", "dog", "horse", "motorbike", "person",
-            "pottedplant", "sheep", "sofa", "train", "tvmonitor"
-            ])
+            with open('data/objectRecognizerWords.txt', 'r') as file:
+                words = file.read().splitlines()
+            self.word_input.addItems(words)
             self.word_input.show()
             self.word_label.show()
             self.image_path_label.hide()

@@ -10,7 +10,7 @@ from api.api_requests import send_to_ConvertService, send_to_MLservice, send_fil
 from utils.file_utils import download_file
 from utils.SaveFile import SaveFile
 from utils.ImageDialog import ImageDialog
-from logic.video_processing import seconds_to_hms
+from logic.time import seconds_to_hms
 
 
 class VideoToImagesView(QWidget):

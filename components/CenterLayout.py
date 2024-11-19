@@ -30,8 +30,6 @@ class CenterLayout(QWidget):
         # Añadir widgets al layout
         layout.addWidget(image_label)
         layout.addWidget(video_frame_label)
-
-        print(f"Label text received: {label_text}")  # Depuración
         
         # Establecer layout en el widget
         self.setLayout(layout)

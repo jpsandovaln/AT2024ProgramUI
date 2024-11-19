@@ -37,7 +37,6 @@ def send_file_to_MLservice(data, endpoint, file_path=None):
             return None
         files = {'image_file_reference': open(file_path, 'rb')}
     
-    # Si 'data' ya contiene un diccionario con los parámetros necesarios, no lo envolvemos en json.dumps aquí.
     try:
         # Envía la solicitud POST con los archivos y datos (si existe el archivo)
         if files:
@@ -81,3 +80,37 @@ def send_to_MLservice(data, endpoint):
     except Exception as e:
         print(f"Error al enviar datos al servicio ML: {e}")
         return None
+    
+
+
+def send_to_ConvertService_VideoToVideo(file_path, endpoint, format, fps=None, vcodec=None, acodec=None, achannel=None):
+    # Endpoint URL: 
+    url = "http://localhost:9090" + endpoint 
+    
+    # Prepare the file for the POST request
+    files = {'file': open(file_path, 'rb')}
+
+    # Prepare the additional parameters to be sent with the request
+    data = {
+        'format': format,
+        'fps': fps,
+        'vcodec': vcodec,
+        'acodec': acodec,
+        'achannel': achannel
+    }
+
+    try:
+        # Send the request with the file and the additional parameters
+        response = requests.post(url, files=files, data=data)
+        print(response)
+
+        # Check if the request was successful
+        if response.status_code == 200:
+            return response.json()  # Return JSON response if successful
+        else:
+            print(f"Error: {response.status_code} - {response.text}")
+            return None
+    except Exception as e:
+        print(f"Exception: {e}")
+        return None
+
