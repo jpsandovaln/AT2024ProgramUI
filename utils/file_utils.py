@@ -41,5 +41,26 @@ def download_file(url):
         return None
 
 
-# Añadir función de validar existencia de archivos
+def download_video(url):
+    try:
+        # Define el nombre del archivo a partir del nombre en la URL
+        local_filename = os.path.join("downloaded_files", os.path.basename(url))
+        os.makedirs(os.path.dirname(local_filename), exist_ok=True)
+
+        # Realiza la descarga del archivo
+        with requests.get(url, stream=True) as r:
+            if r.status_code == 200:
+                with open(local_filename, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        f.write(chunk)
+
+                print(f"Archivo descargado en: {local_filename}")
+                # Devuelve el path del archivo descargado
+                return local_filename
+            else:
+                print(f"Error al descargar el archivo. Código de estado: {r.status_code}")
+                return None
+    except Exception as e:
+        print(f"Error al descargar el archivo: {e}")
+        return None
 

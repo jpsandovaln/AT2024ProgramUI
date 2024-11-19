@@ -6,8 +6,9 @@ from components.NavWidget import NavWidget
 from components.UpperLeftArea2 import UpperLeftArea2
 from components.RigthLayout import Rigthlayout
 from components.CenterLayout import CenterLayout
+from components.VideoPlayer import VideoPlayer
 from api.api_requests import send_to_ConvertService_VideoToVideo
-from utils.file_utils import download_file
+from utils.file_utils import download_video
 from utils.SaveFile import SaveFile
 from utils.ImageDialog import ImageDialog
 
@@ -48,6 +49,9 @@ class VideoToVideoView(QWidget):
 
         # Left area with labels and buttons
         self.upper_left_area = UpperLeftArea2()
+        self.upper_left_area.play_button.hide()
+        self.upper_left_area.download_button.hide()
+
         left_layout.addWidget(self.upper_left_area)
 
         # Right layout with the table
@@ -78,6 +82,8 @@ class VideoToVideoView(QWidget):
         # Connect triggers to handle actions
         self.upper_left_area.browse_button.clicked.connect(self.show_path_and_save_image)
         self.upper_left_area.search_button.clicked.connect(self.searchResults)
+        self.upper_left_area.play_button.clicked.connect(self.playVideo)
+        self.upper_left_area.play_button.clicked.connect(self.downloadVideo)
 
     def open_right_window(self):
         from views.video_to_images import VideoToImagesView
@@ -130,8 +136,31 @@ class VideoToVideoView(QWidget):
         # Envía el video a la API y obtiene la respuesta
         response = send_to_ConvertService_VideoToVideo(self.file_path, endpoint, format, fps, vcodec, acodec, achannel)
         print (response)
-        self.process_complete()
-        
+
+        if response and response.get("download_URL"):
+            print('RESPUES RECIBIDA')
+            # Extrae la URL de descarga de la respuesta
+            video_url = response["download_URL"]
+
+            # Descarga el archivo ZIP y guarda su ruta absoluta, el folder extraido y el nombre del zip file
+            self.file_info = download_video(video_url)
+
+            # Watch video
+            self.upper_left_area.play_button.show()
+            self.upper_left_area.download_button.show()
+            
+            self.process_complete()
+    
+    def playVideo(self):
+        # Crear y mostrar la ventana del reproductor de video
+        self.video_player_window = VideoPlayer(self.file_info)
+
+        # Mostrar la ventana del reproductor
+        self.video_player_window.show()
+        self.video_player_window.play_video()
+
+    def downloadVideo(self):
+        pass
 
     def start_process(self):
         # Crea el cuadro de diálogo "Procesando"

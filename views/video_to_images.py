@@ -346,8 +346,7 @@ class VideoToImagesView(QWidget):
         
         # Abrir el video en el segundo especificado
         self.video_player_window.play_video(second)
-        
-        
+
 
     def start_process(self):
         # Crear un cuadro de diálogo sin botones

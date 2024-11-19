@@ -102,7 +102,6 @@ def send_to_ConvertService_VideoToVideo(file_path, endpoint, format, fps=None, v
     try:
         # Send the request with the file and the additional parameters
         response = requests.post(url, files=files, data=data)
-        print(response)
 
         # Check if the request was successful
         if response.status_code == 200:

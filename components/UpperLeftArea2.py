@@ -29,6 +29,8 @@ class UpperLeftArea2(QWidget):
         self.achannel_input = QComboBox()
 
         self.search_button = SearchButton('Convert')
+        self.play_button = SearchButton('Play converted video')
+        self.download_button = SearchButton('Download converted video')
 
         # Add to the upper left layout
         upper_left_layout.addWidget(video_path_label)
@@ -45,6 +47,8 @@ class UpperLeftArea2(QWidget):
         upper_left_layout.addWidget(self.achannel_label)
         upper_left_layout.addWidget(self.achannel_input)
         upper_left_layout.addWidget(self.search_button)
+        upper_left_layout.addWidget(self.play_button)
+        upper_left_layout.addWidget(self.download_button)
         upper_left_layout.addStretch()
 
         # Adding layout to widget
