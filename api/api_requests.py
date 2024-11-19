@@ -113,3 +113,61 @@ def send_to_ConvertService_VideoToVideo(file_path, endpoint, format, fps=None, v
         print(f"Exception: {e}")
         return None
 
+import requests
+
+def send_to_ConvertService_ImageToImage(file_path, endpoint, format, resize_width=None, resize_height=None, rotate_angle=None, grayscale=False, blur=False, contour=False, detail=False, edge_enhance=False, edge_enhance_more=False, emboss=False, find_edges=False, sharpen=False, smooth=False, smooth_more=False):
+    url = "http://localhost:9090" + endpoint
+
+    # Open the file in binary mode and prepare it for the POST request
+    with open(file_path, 'rb') as file:
+        files = {'image': file}
+
+        # Prepare the additional parameters to be sent with the request
+        data = {
+            'format': format,
+        }
+
+        # Add the additional parameters dynamically based on their values
+        if resize_width is not None:
+            data['resize_width'] = resize_width
+        if resize_height is not None:
+            data['resize_height'] = resize_height
+        if rotate_angle is not None:
+            data['rotate'] = rotate_angle
+        if grayscale:
+            data['GRAYSCALE'] = grayscale
+        if blur:
+            data['BLUR'] = blur
+        if contour:
+            data['CONTOUR'] = contour
+        if detail:
+            data['DETAIL'] = detail
+        if edge_enhance:
+            data['EDGE_ENHANCE'] = edge_enhance
+        if edge_enhance_more:
+            data['EDGE_ENHANCE_MORE'] = edge_enhance_more
+        if emboss:
+            data['EMBOSS'] = emboss
+        if find_edges:
+            data['FIND_EDGES'] = find_edges
+        if sharpen:
+            data['SHARPEN'] = sharpen
+        if smooth:
+            data['SMOOTH'] = smooth
+        if smooth_more:
+            data['SMOOTH_MORE'] = smooth_more
+
+        try:
+            # Send the request with the file and the additional parameters
+            response = requests.post(url, files=files, data=data)
+
+            # Check if the request was successful
+            if response.status_code == 200:
+                return response.json()  # Return JSON response if successful
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+        except Exception as e:
+            print(f"Exception: {e}")
+            return None
+

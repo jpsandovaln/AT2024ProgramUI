@@ -37,7 +37,7 @@ class VideoToVideoView(QWidget):
 
         # Connect navigation signals to handle window switching
         self.nav_widget.left_arrow_clicked.connect(self.open_left_window)
-        self.nav_widget.right_arrow_clicked.connect(self.open_left_window)
+        self.nav_widget.right_arrow_clicked.connect(self.open_right_window)
 
         self.update_function_name('Video to Video Converter')
 
@@ -87,9 +87,9 @@ class VideoToVideoView(QWidget):
         self.upper_left_area.download_button.clicked.connect(self.downloadVideo)
 
     def open_right_window(self):
-        from views.video_to_images import VideoToImagesView
+        from views.image_to_image import ImageToImageView
         self.close()
-        self.new_window = VideoToImagesView()
+        self.new_window = ImageToImageView()
         self.new_window.show()
     
     def open_left_window(self):
