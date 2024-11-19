@@ -9,13 +9,35 @@ from UpperLeftArea import UpperLeftArea
 from ImageDialog import ImageDialog
 from HeaderWidget import HeaderWidget
 import requests
+from PyQt5.QtWidgets import QApplication, QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel
+
 
 
 
 class MainWindow(QWidget):
+
     def __init__(self):
         super().__init__()
+        self.jwt_token = None
         self.file_path = None
+        self.setWindowTitle("Login")
+        self.layout = QVBoxLayout()
+
+        self.label = QLabel("Enter your credentials:")
+        self.username_input = QLineEdit()
+        self.username_input.setPlaceholderText("Username")
+        self.password_input = QLineEdit()
+        self.password_input.setPlaceholderText("Password")
+        #self.password_input.setEchoMode(QLineEdit.Password)
+
+        self.login_button = QPushButton("Login")
+        self.login_button.clicked.connect(self.handle_login)
+
+        self.layout.addWidget(self.label)
+        self.layout.addWidget(self.username_input)
+        self.layout.addWidget(self.password_input)
+        self.layout.addWidget(self.login_button)
+        self.setLayout(self.layout)
 
         # Window configurations
         self.setWindowTitle('Recognizer')
@@ -65,6 +87,31 @@ class MainWindow(QWidget):
         self.down_left_area.browse_image_button.clicked.connect(self.upload_image_path_and_save)
         self.upper_left_area.neural_network_model_combobox.currentIndexChanged.connect(self.update_down_left_model)
 
+
+
+
+    def authenticate_user(self, username, password):
+
+        data = {
+            "username": username,
+            "password": password
+        }
+
+        try:
+            response = requests.post("http://localhost:9090/api/login", json=data)
+            if response.status_code == 200:
+                jwt_token = response.json().get("access_token")
+                print(f"Login successful. Token: {jwt_token}")
+            else:
+                print(f"Login failed: {response.status_code} - {response.text}")
+        except Exception as e:
+            print(f"Error during login: {e}")
+
+    def handle_login(self):
+        username = self.username_input.text()
+        password = self.password_input.text()
+        # Llamar a la función para autenticar
+        self.authenticate_user(username, password)
     #Update down left model after change
     def update_down_left_model(self):
         selected_model = self.upper_left_area.get_neural_network_model()
