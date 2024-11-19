@@ -41,7 +41,7 @@ def download_file(url):
         return None
 
 
-def download_video(url):
+def download_media(url):
     try:
         # Define el nombre del archivo a partir del nombre en la URL
         local_filename = os.path.join("downloaded_files", os.path.basename(url))
