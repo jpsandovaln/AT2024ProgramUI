@@ -11,6 +11,7 @@ from api.api_requests import send_to_ConvertService_VideoToVideo
 from utils.file_utils import download_video
 from utils.SaveFile import SaveFile
 from utils.ImageDialog import ImageDialog
+import shutil
 
 class VideoToVideoView(QWidget):
     def __init__(self):
@@ -83,7 +84,7 @@ class VideoToVideoView(QWidget):
         self.upper_left_area.browse_button.clicked.connect(self.show_path_and_save_image)
         self.upper_left_area.search_button.clicked.connect(self.searchResults)
         self.upper_left_area.play_button.clicked.connect(self.playVideo)
-        self.upper_left_area.play_button.clicked.connect(self.downloadVideo)
+        self.upper_left_area.download_button.clicked.connect(self.downloadVideo)
 
     def open_right_window(self):
         from views.video_to_images import VideoToImagesView
@@ -116,8 +117,8 @@ class VideoToVideoView(QWidget):
             QMessageBox.critical(self, "Error", "No se ha seleccionado ningún archivo.")
             return
         
-        format = self.upper_left_area.outputformat_input.currentText()
-        if not format:
+        self.format = self.upper_left_area.outputformat_input.currentText()
+        if not self.format:
             QMessageBox.critical(self, "Error", "No se ha seleccionado ningún formato de salida.")
             return
 
@@ -134,11 +135,10 @@ class VideoToVideoView(QWidget):
 
         endpoint = '/api/video-to-video'
         # Envía el video a la API y obtiene la respuesta
-        response = send_to_ConvertService_VideoToVideo(self.file_path, endpoint, format, fps, vcodec, acodec, achannel)
+        response = send_to_ConvertService_VideoToVideo(self.file_path, endpoint, self.format, fps, vcodec, acodec, achannel)
         print (response)
 
         if response and response.get("download_URL"):
-            print('RESPUES RECIBIDA')
             # Extrae la URL de descarga de la respuesta
             video_url = response["download_URL"]
 
@@ -160,7 +160,18 @@ class VideoToVideoView(QWidget):
         self.video_player_window.play_video()
 
     def downloadVideo(self):
-        pass
+        file_dialog = QFileDialog(self)
+        file_dialog.setDefaultSuffix(self.format)  # Puedes cambiar la extensión por la que corresponda a tu archivo
+        file_info, _ = file_dialog.getSaveFileName(self, "Guardar video", "", f"Archivos de video (*.{self.format});;Todos los archivos (*)")
+        
+        if file_info:  # Verifica si el usuario seleccionó un archivo
+            try:
+                # Copia el archivo desde la ubicación original a la nueva ubicación seleccionada por el usuario
+                shutil.copy(self.file_info, file_info)
+                print(f"El archivo se ha guardado en: {file_info}")
+                QMessageBox.accepted(self, "Saved", "File saved")
+            except Exception as e: # REVISAR
+                print(f"Error al guardar el archivo: {e}")
 
     def start_process(self):
         # Crea el cuadro de diálogo "Procesando"
