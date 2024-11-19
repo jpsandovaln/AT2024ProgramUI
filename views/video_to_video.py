@@ -8,7 +8,7 @@ from components.RigthLayout import Rigthlayout
 from components.CenterLayout import CenterLayout
 from components.VideoPlayer import VideoPlayer
 from api.api_requests import send_to_ConvertService_VideoToVideo
-from utils.file_utils import download_video
+from utils.file_utils import download_media
 from utils.SaveFile import SaveFile
 from utils.ImageDialog import ImageDialog
 import shutil
@@ -143,7 +143,7 @@ class VideoToVideoView(QWidget):
             video_url = response["download_URL"]
 
             # Descarga el archivo ZIP y guarda su ruta absoluta, el folder extraido y el nombre del zip file
-            self.file_info = download_video(video_url)
+            self.file_info = download_media(video_url)
 
             # Watch video
             self.upper_left_area.play_button.show()
