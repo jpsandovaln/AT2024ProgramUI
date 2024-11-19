@@ -274,8 +274,20 @@ class VideoToImagesView(QWidget):
         # Obtener la fila seleccionada
         selected_row = self.right_layout.table.currentRow()
 
+        # Verificar si no se ha seleccionado ninguna fila
         if selected_row == -1:
             QMessageBox.critical(self, "Error", "Select a row first.")
+            return
+
+        # Verificar si se ha seleccionado toda la tabla o todas las filas
+        selection_model = self.right_layout.table.selectionModel()
+        selected_indexes = selection_model.selectedIndexes()
+
+        # Calcular el número de celdas seleccionadas
+        total_cells = self.right_layout.table.rowCount() * self.right_layout.table.columnCount()
+
+        if len(selected_indexes) == total_cells:
+            QMessageBox.warning(self, "Warning", "You have selected the entire table. Please select just one row.")
             return
 
         # Obtener el dato de la columna 4 (second) de la fila seleccionada
