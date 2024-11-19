@@ -1,11 +1,13 @@
 import os
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QFileDialog, QMessageBox, QProgressDialog
+import sys
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QDialog, QLabel, QFileDialog, QMessageBox, QProgressDialog
 from PyQt5.QtCore import Qt
 from components.HeaderWidget import HeaderWidget
 from components.NavWidget import NavWidget
 from components.UpperLeftArea import UpperLeftArea
 from components.RigthLayout import Rigthlayout
 from components.CenterLayout import CenterLayout
+from components.VideoPlayer import VideoPlayer
 from api.api_requests import send_to_ConvertService, send_to_MLservice, send_file_to_MLservice
 from utils.file_utils import download_file
 from utils.SaveFile import SaveFile
@@ -82,6 +84,7 @@ class VideoToImagesView(QWidget):
         self.upper_left_area.browse_button.clicked.connect(self.show_path_and_save_image)
         self.upper_left_area.search_button.clicked.connect(self.searchResults)
         self.right_layout.show_image_button.clicked.connect(self.showImage)
+        self.right_layout.show_video_point_button.clicked.connect(self.showInVideo)
         self.upper_left_area.browse_image_button.clicked.connect(self.upload_image_path_and_save)
 
 
@@ -113,16 +116,16 @@ class VideoToImagesView(QWidget):
 
     def show_path_and_save_image(self):
         # muestra para seleccionar archivo, tambien lo guarda en carpeta input_files
-        file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo", "",
+        self.file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo", "",
                                                    "Archivos (*.mp4 *.jpg *.png *.jpeg *mkv)")
 
         # Si se selecciona un archivo, se muestra su ruta en el input
-        if file_path:
+        if self.file_path:
             # Call the function to send the file to the API
-            self.file_path = file_path
+            self.file_path = self.file_path
             save_file = SaveFile()
-            save_file.select_and_save_file(file_path)
-            self.upper_left_area.video_path_input.setText(file_path)
+            save_file.select_and_save_file(self.file_path)
+            self.upper_left_area.video_path_input.setText(self.file_path)
         else:
             QMessageBox.critical(self, "Error", "The file could not be copied")
             print("Algo fallo al abrir el archivo, es muy probable que se presiono 'Cancelar'")
@@ -307,13 +310,60 @@ class VideoToImagesView(QWidget):
         dialog = ImageDialog(image_path, self)
         dialog.exec_()
 
+    def showInVideo(self):
+        # Obtener la fila seleccionada
+        selected_row = self.right_layout.table.currentRow()
+
+        # Verificar si no se ha seleccionado ninguna fila
+        if selected_row == -1:
+            QMessageBox.critical(self, "Error", "Select a row first.")
+            return
+
+        # Verificar si se ha seleccionado toda la tabla o todas las filas
+        selection_model = self.right_layout.table.selectionModel()
+        selected_indexes = selection_model.selectedIndexes()
+
+        # Calcular el número de celdas seleccionadas
+        total_cells = self.right_layout.table.rowCount() * self.right_layout.table.columnCount()
+
+        if len(selected_indexes) == total_cells:
+            QMessageBox.warning(self, "Warning", "You have selected the entire table. Please select just one row.")
+            return
+
+        if not self.file_path:
+            QMessageBox.warning(self, "Advertencia", "Por favor, selecciona un video primero.")
+            return
+        
+        # Extraer el segundo desde la columna correspondiente (columna 3)
+        second = int(self.right_layout.table.item(selected_row, 3).text())
+        
+        file_path = self.file_path
+        # Crear y mostrar la ventana del reproductor de video
+        self.video_player_window = VideoPlayer(file_path)
+
+        # Mostrar la ventana del reproductor
+        self.video_player_window.show()
+        
+        # Abrir el video en el segundo especificado
+        self.video_player_window.play_video(second)
+        
+        
+
     def start_process(self):
-        # Crea el cuadro de diálogo "Procesando"
-        self.progress_dialog = QProgressDialog("Procesando, por favor espere...", None, 0, 0, self)
+        # Crear un cuadro de diálogo sin botones
+        self.progress_dialog = QDialog(self)
+        self.progress_dialog.setWindowTitle("Processing")
         self.progress_dialog.setWindowModality(Qt.ApplicationModal)
-        self.progress_dialog.setCancelButtonText(None)
-        self.progress_dialog.setWindowTitle("Procesando")
-        self.progress_dialog.setRange(0, 0)  # Indeterminado
+        self.progress_dialog.setFixedSize(300, 100)
+
+        # Agregar un texto informativo
+        layout = QVBoxLayout()
+        label = QLabel("Your video is being processed, please wait...")
+        label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(label)
+        self.progress_dialog.setLayout(layout)
+
+        # Mostrar el cuadro de diálogo
         self.progress_dialog.show()
         
     def process_interrupted(self):
@@ -323,4 +373,4 @@ class VideoToImagesView(QWidget):
     def process_complete(self):
         # Cierra el cuadro de diálogo
         self.progress_dialog.close()
-        QMessageBox.information(self, "Completado", "El proceso ha finalizado con éxito.")
+        QMessageBox.information(self, "Completed", "The process has completed successfully.")

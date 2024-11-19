@@ -2,9 +2,6 @@ import zipfile
 import requests
 import os
 
-import zipfile
-import requests
-import os
 
 def download_file(url):
     try:

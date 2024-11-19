@@ -18,7 +18,9 @@ class Rigthlayout(QVBoxLayout):
 
         # Botón inferior de "Show Image"
         self.show_image_button = Button("Show Image")
+        self.show_video_point_button = Button("Show in Video")
         self.addWidget(self.show_image_button)
+        self.addWidget(self.show_video_point_button)
 
     def add_new_row(self, data):
         # Insertar una nueva fila al final
