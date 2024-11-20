@@ -113,9 +113,7 @@ def send_to_ConvertService_VideoToVideo(file_path, endpoint, format, fps=None, v
         print(f"Exception: {e}")
         return None
 
-import requests
-
-def send_to_ConvertService_ImageToImage(file_path, endpoint, format, resize_width=None, resize_height=None, rotate_angle=None, grayscale=False, blur=False, contour=False, detail=False, edge_enhance=False, edge_enhance_more=False, emboss=False, find_edges=False, sharpen=False, smooth=False, smooth_more=False):
+def send_to_ConvertService_ImageToImage(file_path, endpoint, format, resize_type=None, resize_width=None, resize_height=None, rotate_angle=None, grayscale=False, blur=False, contour=False, detail=False, edge_enhance=False, edge_enhance_more=False, emboss=False, find_edges=False, sharpen=False, smooth=False, smooth_more=False):
     url = "http://localhost:9090" + endpoint
 
     # Open the file in binary mode and prepare it for the POST request
@@ -124,38 +122,45 @@ def send_to_ConvertService_ImageToImage(file_path, endpoint, format, resize_widt
 
         # Prepare the additional parameters to be sent with the request
         data = {
-            'format': format,
+            'output_format': format,
         }
 
         # Add the additional parameters dynamically based on their values
+        if resize_type is not None:
+            data['resize_type'] = resize_type
         if resize_width is not None:
             data['resize_width'] = resize_width
         if resize_height is not None:
             data['resize_height'] = resize_height
         if rotate_angle is not None:
             data['rotate'] = rotate_angle
+
+        filters = []
         if grayscale:
-            data['GRAYSCALE'] = grayscale
+            filters.append('GRAYSCALE')
         if blur:
-            data['BLUR'] = blur
+            filters.append('BLUR')
         if contour:
-            data['CONTOUR'] = contour
+            filters.append('CONTOUR')
         if detail:
-            data['DETAIL'] = detail
+            filters.append('DETAIL')
         if edge_enhance:
-            data['EDGE_ENHANCE'] = edge_enhance
+            filters.append('EDGE_ENHANCE')
         if edge_enhance_more:
-            data['EDGE_ENHANCE_MORE'] = edge_enhance_more
+            filters.append('EDGE_ENHANCE_MORE')
         if emboss:
-            data['EMBOSS'] = emboss
+            filters.append('EMBOSS')
         if find_edges:
-            data['FIND_EDGES'] = find_edges
+            filters.append('FIND_EDGES')
         if sharpen:
-            data['SHARPEN'] = sharpen
+            filters.append('SHARPEN')
         if smooth:
-            data['SMOOTH'] = smooth
+            filters.append('SMOOTH')
         if smooth_more:
-            data['SMOOTH_MORE'] = smooth_more
+            filters.append('SMOOTH_MORE')
+
+        if filters:  # Solo agrega 'filter' si hay filtros seleccionados
+            data['filter'] = filters
 
         try:
             # Send the request with the file and the additional parameters
