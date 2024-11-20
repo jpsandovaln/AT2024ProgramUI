@@ -87,9 +87,9 @@ class AudioToAudioView(QWidget):
         self.upper_left_area.download_button.clicked.connect(self.downloadVideo)
 
     def open_right_window(self):
-        from views.video_to_images import VideoToImagesView
+        from views.extractor import ExtractorView
         self.close()
-        self.new_window = VideoToImagesView()
+        self.new_window = ExtractorView()
         self.new_window.show()
     
     def open_left_window(self):
