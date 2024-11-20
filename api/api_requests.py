@@ -176,3 +176,42 @@ def send_to_ConvertService_ImageToImage(file_path, endpoint, format, resize_type
             print(f"Exception: {e}")
             return None
 
+def send_to_ConvertService_AudioToAudio(file_path, endpoint, format, bitrate=None, channels=None, samplerate=None, volume=None, languagechannel=None, speed=None):
+    url = "http://localhost:9090" + endpoint
+
+    # Open the file in binary mode and prepare it for the POST request
+    with open(file_path, 'rb') as file:
+        files = {'audio': file}
+
+        # Prepare the additional parameters to be sent with the request
+        data = {
+            'output_format': format,
+        }
+
+        # Add the additional parameters dynamically based on their values
+        if bitrate is not None:
+            data['bitrate'] = bitrate
+        if channels is not None:
+            data['channels'] = channels
+        if samplerate is not None:
+            data['samplerate'] = samplerate
+        if volume is not None:
+            data['volume'] = volume
+        if languagechannel is not None:
+            data['languagechannel'] = languagechannel
+        if speed is not None:
+            data['speed'] = speed
+
+        try:
+            # Send the request with the file and the additional parameters
+            response = requests.post(url, files=files, data=data)
+
+            # Check if the request was successful
+            if response.status_code == 200:
+                return response.json()  # Return JSON response if successful
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+        except Exception as e:
+            print(f"Exception: {e}")
+            return None
