@@ -121,6 +121,7 @@ class ImageToImageView(QWidget):
             return
         
         self.format = self.upper_left_area.outputformat_input.currentText()
+        resizetype = self.upper_left_area.resizetype_input.currentText()
         resizew = self.upper_left_area.resizew_input.text()
         resizeh = self.upper_left_area.resizeh_input.text()
         rotate = self.upper_left_area.rotate_input.text()
@@ -145,6 +146,7 @@ class ImageToImageView(QWidget):
             self.file_path,             # Ruta de la imagen original
             endpoint,                   # Endpoint al servicio de conversión
             self.format,                # Formato de salida
+            resize_type = resizetype,   # Opcional: Tipo de resize
             resize_width=resizew,       # Opcional: Ancho de la imagen
             resize_height=resizeh,      # Opcional: Alto de la imagen
             rotate_angle=rotate,        # Opcional: Ángulo de rotación
