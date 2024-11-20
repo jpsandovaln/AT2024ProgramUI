@@ -17,8 +17,11 @@ class SaveFile():
         # Ruta destino en la carpeta 'archivos_descargados'
         destination_path = os.path.join(self.download_folder, file_name)
         # Copiar el archivo a la carpeta de destino
-        shutil.copy(file_path, destination_path)
-
+        try:
+            shutil.copy(file_path, destination_path)
+            print(f"Archivo copiado a: {destination_path}")
+        except Exception as e:
+            print(f"Error al copiar el archivo: {e}")
         """    except Exception as e:
                 #QMessageBox.critical(self, "Error", f"No se pudo copiar el archivo: {e}")
                 print("Algo fallo al abrir el archivo")"""

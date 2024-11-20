@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import  QWidget, QVBoxLayout, QLabel, \
-    QLineEdit, QComboBox
-from BlueButton import BlueButton
+    QLineEdit, QComboBox, QPushButton
+from .Button import Button, SearchButton
 
 
 class UpperLeftArea(QWidget):
@@ -14,7 +14,7 @@ class UpperLeftArea(QWidget):
 
         # Creating labels , inputs and buttons
         video_path_label = QLabel('Video Path:')
-        word_label = QLabel('Word:')
+        self.word_label = QLabel('Word:')
         neural_network_model_label = QLabel('Type of Recognizer:')
         percentage_label = QLabel('Percentage')
         self.video_path_input = QLineEdit()
@@ -24,10 +24,16 @@ class UpperLeftArea(QWidget):
         self.neural_network_model_combobox = QComboBox()
         self.neural_network_model_combobox.addItems(['Object Recognizer', 'Gender Recognizer', 'Face Recognizer'])
         self.neural_network_model_combobox.currentIndexChanged.connect(self.update_word_input)
+        
+        self.image_path_label = QLabel('Provide image for comparison:')
+        self.image_path_input = QLineEdit()
+        self.image_path_input.setReadOnly(True)  # It  doesn't allow to edit
+        self.browse_image_button = Button('Browse Image')
+        
         self.percentage_combobox = QComboBox()
         self.percentage_combobox.addItems(['10', '20', '50', '70', '80'])
-        self.browse_button = BlueButton('Browse')
-        self.search_button = BlueButton('Search')
+        self.browse_button = Button('Browse')
+        self.search_button = SearchButton('Search')
 
         # Add to the upper left layout
         upper_left_layout.addWidget(video_path_label)
@@ -35,8 +41,11 @@ class UpperLeftArea(QWidget):
         upper_left_layout.addWidget(self.browse_button)
         upper_left_layout.addWidget(neural_network_model_label)
         upper_left_layout.addWidget(self.neural_network_model_combobox)
-        upper_left_layout.addWidget(word_label)
+        upper_left_layout.addWidget(self.word_label)
         upper_left_layout.addWidget(self.word_input)
+        upper_left_layout.addWidget(self.image_path_label)
+        upper_left_layout.addWidget(self.image_path_input)
+        upper_left_layout.addWidget(self.browse_image_button)
         upper_left_layout.addWidget(percentage_label)
         upper_left_layout.addWidget(self.percentage_combobox)
         upper_left_layout.addWidget(self.search_button)
@@ -53,16 +62,28 @@ class UpperLeftArea(QWidget):
         self.word_input.clear()
 
         if selected_model == 'Object Recognizer':
-            self.word_input.addItems([
-            "background", "aeroplane", "bicycle", "bird", "boat",
-            "bottle", "bus", "car", "cat", "chair", "cow",
-            "diningtable", "dog", "horse", "motorbike", "person",
-            "pottedplant", "sheep", "sofa", "train", "tvmonitor"
-            ])
+            with open('data/objectRecognizerWords.txt', 'r') as file:
+                words = file.read().splitlines()
+            self.word_input.addItems(words)
+            self.word_input.show()
+            self.word_label.show()
+            self.image_path_label.hide()
+            self.image_path_input.hide()
+            self.browse_image_button.hide()
         elif selected_model == 'Gender Recognizer':
-            self.word_input.addItems(['Male', 'Female'])
+            self.word_input.addItems(['Man', 'Woman'])
+            self.word_input.show()
+            self.word_label.show()
+            self.image_path_label.hide()
+            self.image_path_input.hide()
+            self.browse_image_button.hide()
         elif selected_model == 'Face Recognizer':
             self.word_input.clear()
+            self.word_input.hide()
+            self.word_label.hide()
+            self.image_path_label.show()
+            self.image_path_input.show()
+            self.browse_image_button.show()
 
     # Getters
     def get_video_path(self):
@@ -76,3 +97,7 @@ class UpperLeftArea(QWidget):
 
     def get_percentage_label(self):
         return self.percentage_combobox.currentText()
+    
+    # Getter
+    def get_image_path(self):
+        return self.image_path_input.text()
