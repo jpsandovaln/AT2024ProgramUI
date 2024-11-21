@@ -224,6 +224,7 @@ def send_to_ConvertService_AudioToAudio(file_path, endpoint, format, bitrate=Non
         except Exception as e:
             print(f"Exception: {e}")
             return None
+<<<<<<< HEAD
 def authenticate_user(self, username, password):
     data = {
         "username": username,
@@ -250,3 +251,27 @@ def authenticate_user(self, username, password):
             return False, response.text
     except Exception as e:
         return False, str(e)
+=======
+        
+
+def send_to_ConvertService_GetMetadata(file_path, endpoint):
+    # Endpoint URL: 
+    url = "http://localhost:9090" + endpoint 
+    
+    # Prepare the file for the POST request
+    files = {'file': open(file_path, 'rb')}
+
+    try:
+        # Send the request with the file and the additional parameters
+        response = requests.post(url, files=files)
+
+        # Check if the request was successful
+        if response.status_code == 200:
+            return response.json()  # Return JSON response if successful
+        else:
+            print(f"Error: {response.status_code} - {response.text}")
+            return None
+    except Exception as e:
+        print(f"Exception: {e}")
+        return None
+>>>>>>> 313fd968ebd8a14e3f8516d438411e1f99b2a9fd

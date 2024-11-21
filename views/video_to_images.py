@@ -37,7 +37,7 @@ class VideoToImagesView(QWidget):
         overall_layout.addWidget(self.nav_widget)
 
         # Conectar la señal del right_arrow_clicked con el método de apertura de una nueva ventana
-        self.nav_widget.left_arrow_clicked.connect(self.open_right_window)
+        self.nav_widget.left_arrow_clicked.connect(self.open_left_window)
         self.nav_widget.right_arrow_clicked.connect(self.open_right_window)
 
         self.update_function_name('Video Frame Analyzer')
@@ -100,13 +100,13 @@ class VideoToImagesView(QWidget):
 
     def open_left_window(self):
         # Importar VideoToVideoWindow solo cuando sea necesario
-        from views.video_to_video import VideoToVideoView
+        from views.extractor import ExtractorView
 
         # Cerrar la ventana principal
         self.close()
 
         # Crear y mostrar la nueva ventana
-        self.new_window = VideoToVideoView()
+        self.new_window = ExtractorView()
         self.new_window.show()
 
     def update_function_name(self, new_name):
