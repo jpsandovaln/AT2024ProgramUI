@@ -224,7 +224,6 @@ def send_to_ConvertService_AudioToAudio(file_path, endpoint, format, bitrate=Non
         except Exception as e:
             print(f"Exception: {e}")
             return None
-<<<<<<< HEAD
 def authenticate_user(self, username, password):
     data = {
         "username": username,
@@ -251,7 +250,6 @@ def authenticate_user(self, username, password):
             return False, response.text
     except Exception as e:
         return False, str(e)
-=======
         
 
 def send_to_ConvertService_GetMetadata(file_path, endpoint):
@@ -274,4 +272,3 @@ def send_to_ConvertService_GetMetadata(file_path, endpoint):
     except Exception as e:
         print(f"Exception: {e}")
         return None
->>>>>>> 313fd968ebd8a14e3f8516d438411e1f99b2a9fd
