@@ -1,5 +1,4 @@
-import os
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QFileDialog, QMessageBox, QProgressDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QFileDialog, QMessageBox, QProgressDialog
 from PyQt5.QtCore import Qt
 from components.HeaderWidget import HeaderWidget
 from components.NavWidget import NavWidget
@@ -12,6 +11,7 @@ from utils.file_utils import download_media
 from utils.SaveFile import SaveFile
 from utils.ImageDialog import ImageDialog
 import shutil
+
 
 class VideoToVideoView(QWidget):
     def __init__(self):
@@ -81,10 +81,10 @@ class VideoToVideoView(QWidget):
         self.setLayout(overall_layout)
 
         # Connect triggers to handle actions
-        self.upper_left_area.browse_button.clicked.connect(self.show_path_and_save_image)
+        self.upper_left_area.browse_button.clicked.connect(self.show_path_and_save)
         self.upper_left_area.search_button.clicked.connect(self.searchResults)
-        self.upper_left_area.play_button.clicked.connect(self.playVideo)
-        self.upper_left_area.download_button.clicked.connect(self.downloadVideo)
+        self.upper_left_area.play_button.clicked.connect(self.play)
+        self.upper_left_area.download_button.clicked.connect(self.download)
 
     def open_right_window(self):
         from views.image_to_image import ImageToImageView
@@ -101,8 +101,13 @@ class VideoToVideoView(QWidget):
     def update_function_name(self, new_name):
         self.nav_widget.update_feature_name(new_name)
 
-    def show_path_and_save_image(self):
-        self.file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo", "", "Archivos (*.mp4 *.jpg *.png *.jpeg *mkv)")
+    def show_path_and_save(self):
+        self.file_path, _ = QFileDialog.getOpenFileName(
+            self, 
+            "Seleccionar archivo", 
+            "", 
+            "Archivos de video (*.avi *.flv *.mkv *.mov *.mp4 *.ogg *.webm *.wmv)"
+        )
         if self.file_path:
             save_file = SaveFile()
             save_file.select_and_save_file(self.file_path)
@@ -130,8 +135,9 @@ class VideoToVideoView(QWidget):
         # Clear the rows before processing
         self.right_layout.clear_rows()
 
-        # Process Window initialized
-        self.start_process()
+        # Process initialized
+        self.center_widget.change_label_text("Processing video... Please wait")
+        QApplication.processEvents()
 
         endpoint = '/api/video-to-video'
         # Envía el video a la API y obtiene la respuesta
@@ -149,17 +155,23 @@ class VideoToVideoView(QWidget):
             self.upper_left_area.play_button.show()
             self.upper_left_area.download_button.show()
             
-            self.process_complete()
+            QMessageBox.information(self, "Completed", "The process has completed successfully.")
+            self.center_widget.change_label_text("Upload your video and specify the desired output parameters, including format, FPS (frames per second), video codec, audio codec, and audio channels. The system will process the input video and convert it into the specified format, ensuring compatibility with your requirements and maintaining high-quality output.")
+            QApplication.processEvents()
+        else:
+            QMessageBox.critical(self, "Error", "Error al procesar el video.")
+            self.center_widget.change_label_text("Upload your video and specify the desired output parameters, including format, FPS (frames per second), video codec, audio codec, and audio channels. The system will process the input video and convert it into the specified format, ensuring compatibility with your requirements and maintaining high-quality output.")
+            QApplication.processEvents()
     
-    def playVideo(self):
+    def play(self):
         # Crear y mostrar la ventana del reproductor de video
-        self.video_player_window = VideoPlayer(self.file_info)
+        self.player_window = VideoPlayer(self.file_info)
 
         # Mostrar la ventana del reproductor
-        self.video_player_window.show()
-        self.video_player_window.play_video()
+        self.player_window.show()
+        self.player_window.play_video()
 
-    def downloadVideo(self):
+    def download(self):
         file_dialog = QFileDialog(self)
         file_dialog.setDefaultSuffix(self.format)  # Puedes cambiar la extensión por la que corresponda a tu archivo
         file_info, _ = file_dialog.getSaveFileName(self, "Guardar video", "", f"Archivos de video (*.{self.format});;Todos los archivos (*)")
@@ -172,21 +184,3 @@ class VideoToVideoView(QWidget):
                 QMessageBox.accepted(self, "Saved", "File saved")
             except Exception as e: # REVISAR
                 print(f"Error al guardar el archivo: {e}")
-
-    def start_process(self):
-        # Crea el cuadro de diálogo "Procesando"
-        self.progress_dialog = QProgressDialog("Procesando, por favor espere...", None, 0, 0, self)
-        self.progress_dialog.setWindowModality(Qt.ApplicationModal)
-        self.progress_dialog.setCancelButtonText(None)
-        self.progress_dialog.setWindowTitle("Procesando")
-        self.progress_dialog.setRange(0, 0)  # Indeterminado
-        self.progress_dialog.show()
-        
-    def process_interrupted(self):
-        # Interrumpe proceso y cierra cuadro de diálogo
-        self.progress_dialog.close()
-
-    def process_complete(self):
-        # Cierra el cuadro de diálogo
-        self.progress_dialog.close()
-        QMessageBox.information(self, "Completado", "El proceso ha finalizado con éxito.")
