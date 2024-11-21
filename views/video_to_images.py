@@ -1,6 +1,5 @@
 import os
-import sys
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QDialog, QLabel, QFileDialog, QMessageBox, QProgressDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QFileDialog, QMessageBox, QProgressDialog
 from PyQt5.QtCore import Qt
 from components.HeaderWidget import HeaderWidget
 from components.NavWidget import NavWidget
@@ -81,7 +80,7 @@ class VideoToImagesView(QWidget):
         self.setLayout(overall_layout)
 
         # Triggers
-        self.upper_left_area.browse_button.clicked.connect(self.show_path_and_save_image)
+        self.upper_left_area.browse_button.clicked.connect(self.show_path_and_save)
         self.upper_left_area.search_button.clicked.connect(self.searchResults)
         self.right_layout.show_image_button.clicked.connect(self.showImage)
         self.right_layout.show_video_point_button.clicked.connect(self.showInVideo)
@@ -114,10 +113,14 @@ class VideoToImagesView(QWidget):
         # Llamar al método del NavWidget para actualizar el nombre
         self.nav_widget.update_feature_name(new_name)
 
-    def show_path_and_save_image(self):
+    def show_path_and_save(self):
         # muestra para seleccionar archivo, tambien lo guarda en carpeta input_files
-        self.file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo", "",
-                                                   "Archivos (*.mp4 *.jpg *.png *.jpeg *mkv)")
+        self.file_path, _ = QFileDialog.getOpenFileName(
+            self, 
+            "Seleccionar archivo", 
+            "", 
+            "Archivos de video (*.avi *.flv *.mkv *.mov *.mp4 *.ogg *.webm *.wmv)"
+        )
 
         # Si se selecciona un archivo, se muestra su ruta en el input
         if self.file_path:
@@ -142,10 +145,11 @@ class VideoToImagesView(QWidget):
             QMessageBox.critical(self, "Error", "The file could not be copied")
             print("Algo fallo al abrir el archivo, es muy probable que se presiono 'Cancelar'")
 
-    
 
     def searchResults(self):
         word = None
+        self.center_widget.show()
+        self.right_widget.hide()
 
         # Verifica que se haya seleccionado un archivo
         if not self.file_path:
@@ -155,8 +159,9 @@ class VideoToImagesView(QWidget):
         # Clear the rows before processing
         self.right_layout.clear_rows()
 
-        # Process Window initialized
-        self.start_process()
+        # Process initialized
+        self.center_widget.change_label_text("Processing video... Please wait")
+        QApplication.processEvents()
 
         endpoint = '/api/video-to-images'
         # Envía el video a la API y obtiene la respuesta
@@ -252,26 +257,23 @@ class VideoToImagesView(QWidget):
                     self.center_widget.hide()
                     self.right_widget.show()
 
-                    self.process_complete()
+                    QMessageBox.information(self, "Completed", "The process has completed successfully.")
                 
                 else:
-                    self.process_interrupted()
-                    QMessageBox.information(self, "Sin resultados", f"No se encontró {word} en el video.")
+                    QMessageBox.information(self, "Sin resultados", f"No se encontró '{word}' con el porcentaje de asertividad seleccionado.")
+                    self.center_widget.change_label_text("Upload your video and select the object, face, or person (male or female) you want to search for. Using Machine Learning, the system analyzes each frame of the video and provides a list of results where the selected object, face, or person is detected, helping you find exactly what you're looking for in the video.")
+                    QApplication.processEvents()
             else:
                 QMessageBox.critical(self, "Error", "No se pudo procesar los datos con el servicio ML.")
+                self.center_widget.change_label_text("Upload your video and select the object, face, or person (male or female) you want to search for. Using Machine Learning, the system analyzes each frame of the video and provides a list of results where the selected object, face, or person is detected, helping you find exactly what you're looking for in the video.")
+                QApplication.processEvents()
         else:
             QMessageBox.critical(self, "Error", "Error al procesar el video o no se encontró el ZIP URL.")
+            self.center_widget.change_label_text("Upload your video and select the object, face, or person (male or female) you want to search for. Using Machine Learning, the system analyzes each frame of the video and provides a list of results where the selected object, face, or person is detected, helping you find exactly what you're looking for in the video.")
+            QApplication.processEvents()
 
     def showNewRow(self):
         self.right_layout.add_new_row(self.result_matrix)
-        #implementar para que pasen las filas que devuelvan
-
-
-    def showData(self):
-        print(self.upper_left_area.get_video_path(), self.upper_left_area.get_word(),
-            self.upper_left_area.get_percentage_label(),
-            self.upper_left_area.get_neural_network_model(),
-            sep=os.linesep)
         
     def showImage(self):
         # Obtener la fila seleccionada
@@ -346,30 +348,3 @@ class VideoToImagesView(QWidget):
         
         # Abrir el video en el segundo especificado
         self.video_player_window.play_video(second)
-
-
-    def start_process(self):
-        # Crear un cuadro de diálogo sin botones
-        self.progress_dialog = QDialog(self)
-        self.progress_dialog.setWindowTitle("Processing")
-        self.progress_dialog.setWindowModality(Qt.ApplicationModal)
-        self.progress_dialog.setFixedSize(300, 100)
-
-        # Agregar un texto informativo
-        layout = QVBoxLayout()
-        label = QLabel("Your video is being processed, please wait...")
-        label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(label)
-        self.progress_dialog.setLayout(layout)
-
-        # Mostrar el cuadro de diálogo
-        self.progress_dialog.show()
-        
-    def process_interrupted(self):
-        # Interrumpe proceso y cierra cuadro de diálogo
-        self.progress_dialog.close()
-
-    def process_complete(self):
-        # Cierra el cuadro de diálogo
-        self.progress_dialog.close()
-        QMessageBox.information(self, "Completed", "The process has completed successfully.")
