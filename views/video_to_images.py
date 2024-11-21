@@ -159,7 +159,7 @@ class VideoToImagesView(QWidget):
         # Clear the rows before processing
         self.right_layout.clear_rows()
 
-        # Process initialized
+        # Process Window initialized
         self.center_widget.change_label_text("Processing video... Please wait")
         QApplication.processEvents()
 
@@ -167,16 +167,8 @@ class VideoToImagesView(QWidget):
         # Envía el video a la API y obtiene la respuesta
         response = send_to_ConvertService(self.file_path, endpoint)
         print (response)
-
-        if response and "error" in response:
-            # Muestra el mensaje de error
-            QMessageBox.critical(self, "Error", response["error"])
-            self.center_widget.change_label_text("Error during processing. Please try again.")
-            QApplication.processEvents()
-            return
-        
         if response and response.get("download_URL"):
-            # Procesa el archivo si no hay errores
+            # Extrae la URL de descarga de la respuesta
             zip_url = response["download_URL"]
 
             # Descarga el archivo ZIP y guarda su ruta absoluta, el folder extraido y el nombre del zip file

@@ -8,38 +8,23 @@ def send_to_ConvertService(file_path, endpoint):
     # Endpoint URL
     url = "http://localhost:9090" + endpoint
 
-    # Verifica si el archivo existe
-    if not os.path.isfile(file_path):
-        return {"error": "El archivo especificado no existe."}
-
-    # Prepara el archivo para la solicitud POST
+    # Prepare the file for the POST request
     files = {'file': open(file_path, 'rb')}
-    
-    # Accede al token JWT desde AppState
-    token = AppState().jwt_token
-    if not token:
-        return {"error": "Usuario no autenticado. Para poder utilizar este microservicio, inicie sesión por favor."}
-
-    # Incluye el token JWT en los headers
-    headers = {
-        'Authorization': f'Bearer {token}'
-    }
 
     try:
-        # Envía la solicitud
-        response = requests.post(url, files=files, headers=headers)
+        # Send the request
+        response = requests.post(url, files=files)
+        print(response)
 
-        # Verifica el código de respuesta
+        # Check if the request was successful
         if response.status_code == 200:
-            return response.json()  # Devuelve la respuesta en JSON si es exitosa
-        elif response.status_code == 401:
-            return {"error": "Usuario no autenticado. Token JWT inválido o expirado."}
+            return response.json()  # Return JSON response if successful
         else:
-            return {"error": f"Error en la API: {response.status_code}"}
+            print(f"Error: {response.status_code} - {response.text}")
+            return None
     except Exception as e:
-        print(f"Excepción: {e}")
-        return {"error": f"Excepción al procesar la solicitud: {e}"}
-
+        print(f"Exception: {e}")
+        return None
 
 
 def send_file_to_MLservice(data, endpoint, file_path=None):
