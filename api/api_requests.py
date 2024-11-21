@@ -61,6 +61,7 @@ def send_file_to_MLservice(data, endpoint, file_path=None):
         if files:
             files['image_file_reference'].close()
 
+
 def send_to_MLservice(data, endpoint):
     # URL base del servicio ML
     base_url = "http://localhost:5000"
@@ -83,7 +84,6 @@ def send_to_MLservice(data, endpoint):
     except Exception as e:
         print(f"Error al enviar datos al servicio ML: {e}")
         return None
-    
 
 
 def send_to_ConvertService_VideoToVideo(file_path, endpoint, format, fps=None, vcodec=None, acodec=None, achannel=None):

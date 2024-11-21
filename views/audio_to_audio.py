@@ -111,14 +111,15 @@ class AudioToAudioView(QWidget):
             QMessageBox.critical(self, "Error", "The file could not be copied")
 
     def searchResults(self):
-        # Verify that a file has been selected
+        # Verificar que se haya seleccionado un archivo
         if not self.file_path:
             QMessageBox.critical(self, "Error", "No file selected.")
             return
         
+        # Verificar que se haya seleccionado un formato de salida
         self.format = self.upper_left_area.outputformat_input.currentText()
         if not self.format:
-            QMessageBox.critical(self, "Error", "No output format has been selected..")
+            QMessageBox.critical(self, "Error", "No output format has been selected.")
             return
 
         bitrate = self.upper_left_area.bitrate_input.currentText()
@@ -128,33 +129,44 @@ class AudioToAudioView(QWidget):
         languagechannel = self.upper_left_area.languagechannel_input.text()
         speed = self.upper_left_area.speed_input.text()
 
-        # Process initialized
+        # Validar que speed no exceda el límite (2.0)
+        try:
+            speed = float(speed)  # Convertir a número flotante
+            if speed > 2.0 or speed <= 0:
+                QMessageBox.critical(self, "Error", "Playback speed must be between 0.1 and 2.0.")
+                return
+        except ValueError:
+            QMessageBox.critical(self, "Error", "Playback speed must be a valid number.")
+            return
+
+        # Validar que languagechannel sea un valor numérico
+        if not languagechannel.isdigit():
+            QMessageBox.critical(self, "Error", "The language channel must be a numeric value.")
+            return
+
+
+        # Mostrar mensaje de "procesando"
         self.center_widget.change_label_text("Processing audio... Please wait")
         QApplication.processEvents()
 
         endpoint = '/api/convert-audio'
-        # Send the audio to the API and get the response
-        response = send_to_ConvertService_AudioToAudio(self.file_path,  endpoint, self.format, bitrate, channels, samplerate, volume, languagechannel, speed)
-        print (response)
+        # Llamar a la API
+        response = send_to_ConvertService_AudioToAudio(
+            self.file_path, endpoint, self.format, bitrate, channels, samplerate, volume, languagechannel, speed
+        )
 
+        # Manejo de la respuesta
         if response and response.get("download_URL"):
-            # Extract the download URL from the response
             video_url = response["download_URL"]
-
-            # Download the ZIP file and save its absolute path, the extracted folder and the name of the zip file
             self.file_info = download_media(video_url)
-
-            # Watch audio
             self.upper_left_area.play_button.show()
             self.upper_left_area.download_button.show()
-            
             QMessageBox.information(self, "Completed", "The process has completed successfully.")
             self.center_widget.change_label_text("Upload your audio file and specify the desired output parameters, including format, bit rate, number of channels, sample rate, volume adjustment, language channel, and playback speed. The system will process your input audio and convert it into the specified format, ensuring compatibility with your preferences while maintaining optimal sound quality.")
-            QApplication.processEvents()
         else:
             QMessageBox.critical(self, "Error", "Error processing audio.")
-            self.center_widget.change_label_text("Upload your audio file and specify the desired output parameters, including format, bit rate, number of channels, sample rate, volume adjustment, language channel, and playback speed. The system will process your input audio and convert it into the specified format, ensuring compatibility with your preferences while maintaining optimal sound quality.")
-            QApplication.processEvents()
+            self.center_widget.change_label_text("Upload your audio file and specify the desired output parameters, including format, bit rate, number of channels, sample rate, volume adjustment, language channel, and playback speed.")
+        QApplication.processEvents()
         
     
     def play(self):
