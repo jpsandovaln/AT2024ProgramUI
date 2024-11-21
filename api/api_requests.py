@@ -4,6 +4,7 @@ import os
 from singleton import app_state
 from singleton.app_state import AppState
 
+
 def send_to_ConvertService(file_path, endpoint):
     # Endpoint URL
     url = "http://localhost:9090" + endpoint
@@ -29,7 +30,7 @@ def send_to_ConvertService(file_path, endpoint):
 
 def send_file_to_MLservice(data, endpoint, file_path=None):
     # URL base del servicio ML
-    url = "http://localhost:5001" + endpoint
+    url = "http://localhost:5000" + endpoint
 
     files = None
     # Si se pasó una ruta de archivo, prepara el archivo
@@ -62,7 +63,7 @@ def send_file_to_MLservice(data, endpoint, file_path=None):
 
 def send_to_MLservice(data, endpoint):
     # URL base del servicio ML
-    base_url = "http://localhost:5001"
+    base_url = "http://localhost:5000"
     url = base_url + endpoint
         
     # Agrega el encabezado Content-Type explícitamente (opcional)
