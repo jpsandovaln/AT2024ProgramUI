@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import  QWidget, QVBoxLayout, QLabel, \
-    QLineEdit, QComboBox, QPushButton
+    QLineEdit
 from .Button import Button, SearchButton
 
 
@@ -17,7 +17,7 @@ class UpperLeftArea5(QWidget):
         self.file_path_input = QLineEdit()
         self.file_path_input.setReadOnly(True)  # It  doesn't allow to edit
         self.browse_button = Button('Browse')
-        self.search_button = SearchButton('Search')
+        self.search_button = SearchButton('Extract')
 
         # Add to the upper left layout
         upper_left_layout.addWidget(file_path_label)

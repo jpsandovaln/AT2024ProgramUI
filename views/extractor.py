@@ -32,7 +32,7 @@ class ExtractorView(QWidget):
         overall_layout.addWidget(self.nav_widget)
 
         # Connect the right_arrow_clicked signal to the opening method of a new window
-        self.nav_widget.left_arrow_clicked.connect(self.open_right_window)
+        self.nav_widget.left_arrow_clicked.connect(self.open_left_window)
         self.nav_widget.right_arrow_clicked.connect(self.open_right_window)
 
         self.update_function_name('Metadata Extractor')
