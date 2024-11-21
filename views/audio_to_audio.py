@@ -22,7 +22,7 @@ class AudioToAudioView(QWidget):
         self.setWindowTitle('Audio To Audio Converter')
         self.setGeometry(100, 100, 1000, 700)
 
-        # Layout general (usamos un nuevo layout para esta vista)
+        # General layout (we used a new layout for this view)
         overall_layout = QVBoxLayout()
         overall_layout.setContentsMargins(0, 0, 0, 10)
         overall_layout.setSpacing(0)
@@ -102,7 +102,7 @@ class AudioToAudioView(QWidget):
         self.nav_widget.update_feature_name(new_name)
 
     def show_path_and_save(self):
-        self.file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo", "", "Archivos (*.mp3 *.mov *.avi *.mkv *.flv *.webm *.ogg *.wmv)")
+        self.file_path, _ = QFileDialog.getOpenFileName(self, "Select file", "", "Archivos (*.mp3 *.mov *.avi *.mkv *.flv *.webm *.ogg *.wmv)")
         if self.file_path:
             save_file = SaveFile()
             save_file.select_and_save_file(self.file_path)
@@ -111,14 +111,14 @@ class AudioToAudioView(QWidget):
             QMessageBox.critical(self, "Error", "The file could not be copied")
 
     def searchResults(self):
-        # Verifica que se haya seleccionado un archivo
+        # Verify that a file has been selected
         if not self.file_path:
-            QMessageBox.critical(self, "Error", "No se ha seleccionado ningún archivo.")
+            QMessageBox.critical(self, "Error", "No file selected.")
             return
         
         self.format = self.upper_left_area.outputformat_input.currentText()
         if not self.format:
-            QMessageBox.critical(self, "Error", "No se ha seleccionado ningún formato de salida.")
+            QMessageBox.critical(self, "Error", "No output format has been selected..")
             return
 
         bitrate = self.upper_left_area.bitrate_input.currentText()
@@ -133,15 +133,15 @@ class AudioToAudioView(QWidget):
         QApplication.processEvents()
 
         endpoint = '/api/convert-audio'
-        # Envía el audio a la API y obtiene la respuesta
+        # Send the audio to the API and get the response
         response = send_to_ConvertService_AudioToAudio(self.file_path,  endpoint, self.format, bitrate, channels, samplerate, volume, languagechannel, speed)
         print (response)
 
         if response and response.get("download_URL"):
-            # Extrae la URL de descarga de la respuesta
+            # Extract the download URL from the response
             video_url = response["download_URL"]
 
-            # Descarga el archivo ZIP y guarda su ruta absoluta, el folder extraido y el nombre del zip file
+            # Download the ZIP file and save its absolute path, the extracted folder and the name of the zip file
             self.file_info = download_media(video_url)
 
             # Watch audio
@@ -152,29 +152,29 @@ class AudioToAudioView(QWidget):
             self.center_widget.change_label_text("Upload your audio file and specify the desired output parameters, including format, bit rate, number of channels, sample rate, volume adjustment, language channel, and playback speed. The system will process your input audio and convert it into the specified format, ensuring compatibility with your preferences while maintaining optimal sound quality.")
             QApplication.processEvents()
         else:
-            QMessageBox.critical(self, "Error", "Error al procesar el audio.")
+            QMessageBox.critical(self, "Error", "Error processing audio.")
             self.center_widget.change_label_text("Upload your audio file and specify the desired output parameters, including format, bit rate, number of channels, sample rate, volume adjustment, language channel, and playback speed. The system will process your input audio and convert it into the specified format, ensuring compatibility with your preferences while maintaining optimal sound quality.")
             QApplication.processEvents()
         
     
     def play(self):
-        # Crear y mostrar la ventana del reproductor de audio
+        # Create and display the audio player window
         self.player_window = VideoPlayer(self.file_info)
 
-        # Mostrar la ventana del reproductor
+        # Show the player window
         self.player_window.show()
         self.player_window.play_video()
 
     def download(self):
         file_dialog = QFileDialog(self)
-        file_dialog.setDefaultSuffix(self.format)  # Puedes cambiar la extensión por la que corresponda a tu archivo
-        file_info, _ = file_dialog.getSaveFileName(self, "Guardar audio", "", f"Archivos de video (*.{self.format});;Todos los archivos (*)")
+        file_dialog.setDefaultSuffix(self.format)
+        file_info, _ = file_dialog.getSaveFileName(self, "Save file", "", f"Archivos de video (*.{self.format});;Todos los archivos (*)")
         
-        if file_info:  # Verifica si el usuario seleccionó un archivo
+        if file_info:  # Check if the user selected a file
             try:
-                # Copia el archivo desde la ubicación original a la nueva ubicación seleccionada por el usuario
+                # Copy the file from the original location to the new location selected by the user
                 shutil.copy(self.file_info, file_info)
-                print(f"El archivo se ha guardado en: {file_info}")
+                print(f"The file has been saved in: {file_info}")
                 QMessageBox.accepted(self, "Saved", "File saved")
-            except Exception as e: # REVISAR
-                print(f"Error al guardar el archivo: {e}")
+            except Exception as e:
+                print(f"Error saving file: {e}")

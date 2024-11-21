@@ -118,10 +118,10 @@ class LoginView(QWidget):
         else:
             self.show_message("Login Failed", f"Error: {token}", QMessageBox.Critical)
     def open_window(self):
-        # Cerrar la ventana principal
+        # Close the main window
         self.close()
 
-        # Importar VideoToVideoWindow solo cuando sea necesario
+        # Import VideoToVideoWindow only when necessary
         from views.video_to_images import VideoToImagesView
 
         # Create and show new window

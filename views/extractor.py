@@ -31,7 +31,7 @@ class ExtractorView(QWidget):
         self.nav_widget = NavWidget()
         overall_layout.addWidget(self.nav_widget)
 
-        # Conectar la señal del right_arrow_clicked con el método de apertura de una nueva ventana
+        # Connect the right_arrow_clicked signal to the opening method of a new window
         self.nav_widget.left_arrow_clicked.connect(self.open_right_window)
         self.nav_widget.right_arrow_clicked.connect(self.open_right_window)
 
@@ -53,7 +53,7 @@ class ExtractorView(QWidget):
         # Right layout with the table
         self.right_layout = Rigthlayout2()
 
-        # Crear una instancia de CenterLayout
+        # Create an instance of CenterLayout
         self.center_widget = CenterLayout(
             image_path="./assets/icons/cloud-download.png",
             label_text="Upload your file and let the system handle the rest. Using advanced algorithms, the extractor analyzes the file and retrieves all available metadata, including file type, size, creation and modification dates, author information, and more. This tool provides a clear and organized summary of the data embedded in your file, giving you quick insights without any additional effort."
@@ -61,8 +61,8 @@ class ExtractorView(QWidget):
 
         # Initially hide right_layout and show center_widget
         self.right_widget = QWidget()
-        self.right_widget.setLayout(self.right_layout)  # Asignar el layout a un widget contenedor
-        self.right_widget.hide()  # Inicialmente ocultamos el RightLayout
+        self.right_widget.setLayout(self.right_layout)  # Assign the layout to a container widget
+        self.right_widget.hide()  # Initially we hide the RightLayout
 
         # Add the layouts into the main layout
         main_layout.addLayout(left_layout, 1)  #  1 is the expansion factor 
@@ -80,37 +80,37 @@ class ExtractorView(QWidget):
         
 
     def open_right_window(self):
-        # Importar VideoToVideoWindow solo cuando sea necesario
+        # Import only when necessary
         from views.video_to_images import VideoToImagesView
 
-        # Cerrar la ventana principal
+        # Close the main window
         self.close()
 
-        # Crear y mostrar la nueva ventana
+        # Create and display the new window
         self.new_window = VideoToImagesView()
         self.new_window.show()
 
     def open_left_window(self):
-        # Importar VideoToVideoWindow solo cuando sea necesario
+        # Import only when necessary
         from views.audio_to_audio import AudioToAudioView
 
-        # Cerrar la ventana principal
+        # Close the main window
         self.close()
 
-        # Crear y mostrar la nueva ventana
+        # Create and display the new window
         self.new_window = AudioToAudioView()
         self.new_window.show()
 
     def update_function_name(self, new_name):
-        # Llamar al método del NavWidget para actualizar el nombre
+        # Call the NavWidget method to update the name
         self.nav_widget.update_feature_name(new_name)
 
     def show_path_and_save(self):
-        # muestra para seleccionar archivo, tambien lo guarda en carpeta input_files
-        self.file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo", "",
+        # shows to select file, also saves it in input_files folder
+        self.file_path, _ = QFileDialog.getOpenFileName(self, "Select file", "",
                                                 "Todos los archivos (*.*)")
 
-        # Si se selecciona un archivo, se muestra su ruta en el input
+        # If a file is selected, its path is shown in the input
         if self.file_path:
             # Call the function to send the file to the API
             self.file_path = self.file_path
@@ -119,14 +119,14 @@ class ExtractorView(QWidget):
             self.upper_left_area.file_path_input.setText(self.file_path)
         else:
             QMessageBox.critical(self, "Error", "The file could not be copied")
-            print("Algo fallo al abrir el archivo, es muy probable que se presiono 'Cancelar'")
+            print("Something went wrong while opening the file, most likely 'Cancel' was pressed")
 
 
     def searchResults(self):
 
-        # Verifica que se haya seleccionado un archivo
+        # Verify that a file has been selected
         if not self.file_path:
-            QMessageBox.critical(self, "Error", "No se ha seleccionado ningún archivo.")
+            QMessageBox.critical(self, "Error", "No file selected.")
             return
 
         # Clear the rows before processing
@@ -140,54 +140,28 @@ class ExtractorView(QWidget):
         QApplication.processEvents()
 
         endpoint = '/api/get-metadata'
-        # Envía el video a la API y obtiene la respuesta
+        # Send the video to the API and get the response
         response = send_to_ConvertService_GetMetadata(self.file_path, endpoint)
         print (response)
         if response:
 
             for key, value in response.items():
-                # Añadir valores exttraidos a la tabla
+                # Add extracted values ​​to the table
                 self.result_matrix = [key, value]
                 self.showNewRow()
 
             self.center_widget.hide()
             self.right_widget.show()
 
-            self.process_complete()
-                
+            QMessageBox.information(self, "Completed", "The process has completed successfully.")
+            self.center_widget.change_label_text("Upload your file and let the system handle the rest. Using advanced algorithms, the extractor analyzes the file and retrieves all available metadata, including file type, size, creation and modification dates, author information, and more. This tool provides a clear and organized summary of the data embedded in your file, giving you quick insights without any additional effort.")
+            QApplication.processEvents()
+
         else:
-            QMessageBox.critical(self, "Error", "Error al procesar el archivo.")
+            QMessageBox.critical(self, "Error", "Error processing file.")
             self.center_widget.change_label_text("Upload your file and let the system handle the rest. Using advanced algorithms, the extractor analyzes the file and retrieves all available metadata, including file type, size, creation and modification dates, author information, and more. This tool provides a clear and organized summary of the data embedded in your file, giving you quick insights without any additional effort.")
             QApplication.processEvents()
 
     def showNewRow(self):
         self.right_layout.add_new_row(self.result_matrix)
-        #implementar para que pasen las filas que devuelvan
         
-
-
-    def start_process(self):
-        # Crear un cuadro de diálogo sin botones
-        self.progress_dialog = QDialog(self)
-        self.progress_dialog.setWindowTitle("Processing")
-        self.progress_dialog.setWindowModality(Qt.ApplicationModal)
-        self.progress_dialog.setFixedSize(300, 100)
-
-        # Agregar un texto informativo
-        layout = QVBoxLayout()
-        label = QLabel("Your video is being processed, please wait...")
-        label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(label)
-        self.progress_dialog.setLayout(layout)
-
-        # Mostrar el cuadro de diálogo
-        self.progress_dialog.show()
-        
-    def process_interrupted(self):
-        # Interrumpe proceso y cierra cuadro de diálogo
-        self.progress_dialog.close()
-
-    def process_complete(self):
-        # Cierra el cuadro de diálogo
-        self.progress_dialog.close()
-        QMessageBox.information(self, "Completed", "The process has completed successfully.")

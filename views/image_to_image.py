@@ -6,11 +6,9 @@ from components.NavWidget import NavWidget
 from components.UpperLeftArea3 import UpperLeftArea3
 from components.RigthLayout import Rigthlayout
 from components.CenterLayout import CenterLayout
-from components.VideoPlayer import VideoPlayer
 from api.api_requests import send_to_ConvertService_ImageToImage
 from utils.file_utils import download_media
 from utils.SaveFile import SaveFile
-from utils.ImageDialog import ImageDialog
 import shutil
 
 
@@ -23,7 +21,7 @@ class ImageToImageView(QWidget):
         self.setWindowTitle('Image to Image Converter')
         self.setGeometry(100, 100, 1000, 700)
 
-        # Layout general (usamos un nuevo layout para esta vista)
+        # Layout general
         overall_layout = QVBoxLayout()
         overall_layout.setContentsMargins(0, 0, 0, 10)
         overall_layout.setSpacing(0)
@@ -86,13 +84,13 @@ class ImageToImageView(QWidget):
         self.upper_left_area.download_button.clicked.connect(self.downloadImage)
 
     def open_right_window(self):
-        # Importar VideoToVideoWindow solo cuando sea necesario
+        # Import only when necessary
         from views.audio_to_audio import AudioToAudioView
 
-        # Cerrar la ventana principal
+        # Close the main window
         self.close()
 
-        # Crear y mostrar la nueva ventana
+        # Create and display the new window
         self.new_window = AudioToAudioView()
         self.new_window.show()
     
@@ -108,7 +106,7 @@ class ImageToImageView(QWidget):
     def show_path_and_save(self):
         self.file_path, _ = QFileDialog.getOpenFileName(
             self, 
-            "Seleccionar archivo", 
+            "Select file", 
             "", 
             "Archivos de imagen (*.jpg *.jpeg *.png *.gif)"
         )
@@ -121,9 +119,9 @@ class ImageToImageView(QWidget):
 
     def searchResults(self):
 
-        # Verifica que se haya seleccionado un archivo
+        # Verify that a file has been selected
         if not self.file_path:
-            QMessageBox.critical(self, "Error", "No se ha seleccionado ningún archivo.")
+            QMessageBox.critical(self, "Error", "No file selected.")
             return
         
         self.format = self.upper_left_area.outputformat_input.currentText()
@@ -148,35 +146,35 @@ class ImageToImageView(QWidget):
         QApplication.processEvents()
 
         endpoint = '/api/image-configuration'
-        # Envía el video a la API y obtiene la respuesta
+        # Send the video to the API and get the response
         response = send_to_ConvertService_ImageToImage(
-            self.file_path,             # Ruta de la imagen original
-            endpoint,                   # Endpoint al servicio de conversión
-            self.format,                # Formato de salida
-            resize_type = resizetype,   # Opcional: Tipo de resize
-            resize_width=resizew,       # Opcional: Ancho de la imagen
-            resize_height=resizeh,      # Opcional: Alto de la imagen
-            rotate_angle=rotate,        # Opcional: Ángulo de rotación
-            grayscale=grayscale,        # Opcional: Conversión a escala de grises
-            blur=blur,                  # Opcional: filtro de desenfoque
-            contour=contour,            # Opcional: filtro de contorno
-            detail=detail,              # Opcional: filtro de detalles
-            edge_enhance=edge_enhance,  # Opcional: filtro de mejora de bordes
-            edge_enhance_more=edge_enhance_more, # Opcional: más filtro de mejora de bordes
-            emboss=emboss,              # Opcional: filtro de emboss
-            find_edges=find_edges,      # Opcional: filtro de encontrar bordes
-            sharpen=sharpen,            # Opcional: filtro de mejora de nitidez
-            smooth=smooth,              # Opcional: filtro de suavizado
-            smooth_more=smooth_more     # Opcional: más filtro de suavizado
+            self.file_path,             # Original image path
+            endpoint,                   # Endpoint to conversion service
+            self.format,                # Output format
+            resize_type = resizetype,   # Optional: Resize type
+            resize_width=resizew,       # Optional: Image width
+            resize_height=resizeh,      # Optional: Image height
+            rotate_angle=rotate,        # Optional: Rotation angle
+            grayscale=grayscale,        # Optional: Convert to grayscale
+            blur=blur,                  # Optional: blur filter
+            contour=contour,            # Optional: contour filter
+            detail=detail,              # Optional: Details filter
+            edge_enhance=edge_enhance,  # Optional: Edge Enhancement Filter
+            edge_enhance_more=edge_enhance_more, # Optional: More edge enhancement filter
+            emboss=emboss,              # Optional: emboss filter
+            find_edges=find_edges,      # Optional: Find edges filter
+            sharpen=sharpen,            # Optional: Sharpening Enhancement Filter
+            smooth=smooth,              # Optional: smoothing filter
+            smooth_more=smooth_more     # Optional: more smoothing filter
         )
 
         print (response)
 
         if response and response.get("download_URL"):
-            # Extrae la URL de descarga de la respuesta
+            # Extract the download URL from the response
             image_url = response["download_URL"]
 
-            # Descarga el archivo ZIP y guarda su ruta absoluta, el folder extraido y el nombre del zip file
+            # Download the ZIP file and save its absolute path, the extracted folder and the name of the zip file
             self.file_info = download_media(image_url)
 
             self.upper_left_area.download_button.show()
@@ -185,7 +183,7 @@ class ImageToImageView(QWidget):
             self.center_widget.change_label_text("Upload your image and specify the desired output parameters, including resize width, resize height, resize type, rotation, format, rotation angle, grayscale conversion, and filters. The system will process the input image according to the specified settings, adjusting its dimensions, format, and visual properties to meet your needs while preserving image quality and ensuring the desired effect.")
             QApplication.processEvents()
         else:
-            QMessageBox.critical(self, "Error", "Error al procesar la imagen.")
+            QMessageBox.critical(self, "Error", "Error processing image.")
             self.center_widget.change_label_text("Upload your image and specify the desired output parameters, including resize width, resize height, resize type, rotation, format, rotation angle, grayscale conversion, and filters. The system will process the input image according to the specified settings, adjusting its dimensions, format, and visual properties to meet your needs while preserving image quality and ensuring the desired effect.")
             QApplication.processEvents()
 
@@ -193,37 +191,36 @@ class ImageToImageView(QWidget):
         file_dialog = QFileDialog(self)
         file_dialog.setDefaultSuffix(self.format if self.format.startswith('.') else f'.{self.format}')
         
-        # Filtro de archivos
-        file_info, _ = file_dialog.getSaveFileName(self, "Guardar archivo", "", 
+        # File filter
+        file_info, _ = file_dialog.getSaveFileName(self, "Save file", "", 
                                                 f"Archivos de imágenes (*.{self.format});;Todos los archivos (*)")
         
-        if file_info:  # Verifica si el usuario seleccionó un archivo
+        if file_info:  # Check if the user selected a file
             try:
-                # Verifica que la ruta de origen sea válida
+                # Verify that the source path is valid
                 if not os.path.exists(self.file_info):
-                    raise Exception(f"El archivo no existe en la ruta: {self.file_info}")
+                    raise Exception(f"The file does not exist in the path: {self.file_info}")
                 
-                # Si el formato no está presente en el nombre del archivo, agrega la extensión
+                # If the format is not present in the file name, add the extension
                 if not file_info.endswith(self.format):
                     file_info = f"{file_info}.{self.format}"
                 
-                # Copia el archivo desde la ubicación original a la nueva ubicación seleccionada por el usuario
+                # Copy the file from the original location to the new location selected by the user
                 shutil.copy(self.file_info, file_info)
-                print(f"El archivo se ha guardado en: {file_info}")
+                print(f"The file has been saved in: {file_info}")
 
-                # Mostrar un mensaje de éxito usando QMessageBox
+                # Display a success message using QMessageBox
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Information)
                 msg.setText("File saved")
                 msg.setWindowTitle("Saved")
                 msg.exec_()
 
-            except Exception as e:  # Manejo de errores
-                print(f"Error al guardar el archivo: {e}")
+            except Exception as e: 
                 
-                # Mostrar un mensaje de error usando QMessageBox
+                # Display a success message using QMessageBox
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Critical)
-                msg.setText(f"Error al guardar el archivo: {e}")
+                msg.setText(f"Error saving file: {e}")
                 msg.setWindowTitle("Error")
                 msg.exec_()
