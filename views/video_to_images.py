@@ -167,8 +167,16 @@ class VideoToImagesView(QWidget):
         # Envía el video a la API y obtiene la respuesta
         response = send_to_ConvertService(self.file_path, endpoint)
         print (response)
+
+        if response and "error" in response:
+            # Muestra el mensaje de error
+            QMessageBox.critical(self, "Error", response["error"])
+            self.center_widget.change_label_text("Error during processing. Please try again.")
+            QApplication.processEvents()
+            return
+        
         if response and response.get("download_URL"):
-            # Extrae la URL de descarga de la respuesta
+            # Procesa el archivo si no hay errores
             zip_url = response["download_URL"]
 
             # Descarga el archivo ZIP y guarda su ruta absoluta, el folder extraido y el nombre del zip file
@@ -263,6 +271,7 @@ class VideoToImagesView(QWidget):
                     QMessageBox.information(self, "Sin resultados", f"No se encontró '{word}' con el porcentaje de asertividad seleccionado.")
                     self.center_widget.change_label_text("Upload your video and select the object, face, or person (male or female) you want to search for. Using Machine Learning, the system analyzes each frame of the video and provides a list of results where the selected object, face, or person is detected, helping you find exactly what you're looking for in the video.")
                     QApplication.processEvents()
+
             else:
                 QMessageBox.critical(self, "Error", "No se pudo procesar los datos con el servicio ML.")
                 self.center_widget.change_label_text("Upload your video and select the object, face, or person (male or female) you want to search for. Using Machine Learning, the system analyzes each frame of the video and provides a list of results where the selected object, face, or person is detected, helping you find exactly what you're looking for in the video.")

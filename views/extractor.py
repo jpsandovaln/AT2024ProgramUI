@@ -1,11 +1,9 @@
-import os
-import sys
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QDialog, QLabel, QFileDialog, QMessageBox, QProgressDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QDialog, QLabel, QFileDialog, QMessageBox, QProgressDialog
 from PyQt5.QtCore import Qt
 from components.HeaderWidget import HeaderWidget
 from components.NavWidget import NavWidget
 from components.UpperLeftArea5 import UpperLeftArea5
-from components.RigthLayout import Rigthlayout
+from components.RigthLayout2 import Rigthlayout2
 from components.CenterLayout import CenterLayout
 from api.api_requests import send_to_ConvertService_GetMetadata
 from utils.SaveFile import SaveFile
@@ -53,7 +51,7 @@ class ExtractorView(QWidget):
         left_layout.addWidget(self.upper_left_area)
 
         # Right layout with the table
-        self.right_layout = Rigthlayout()
+        self.right_layout = Rigthlayout2()
 
         # Crear una instancia de CenterLayout
         self.center_widget = CenterLayout(
@@ -77,7 +75,7 @@ class ExtractorView(QWidget):
         self.setLayout(overall_layout)
 
         # Triggers
-        self.upper_left_area.browse_button.clicked.connect(self.show_path_and_save_file)
+        self.upper_left_area.browse_button.clicked.connect(self.show_path_and_save)
         self.upper_left_area.search_button.clicked.connect(self.searchResults)
         
 
@@ -107,7 +105,7 @@ class ExtractorView(QWidget):
         # Llamar al método del NavWidget para actualizar el nombre
         self.nav_widget.update_feature_name(new_name)
 
-    def show_path_and_save_file(self):
+    def show_path_and_save(self):
         # muestra para seleccionar archivo, tambien lo guarda en carpeta input_files
         self.file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo", "",
                                                 "Todos los archivos (*.*)")
@@ -134,8 +132,12 @@ class ExtractorView(QWidget):
         # Clear the rows before processing
         self.right_layout.clear_rows()
 
-        # Process Window initialized
-        self.start_process()
+        self.center_widget.show()
+        self.right_widget.hide()
+
+        # Process initialized
+        self.center_widget.change_label_text("Processing file... Please wait")
+        QApplication.processEvents()
 
         endpoint = '/api/get-metadata'
         # Envía el video a la API y obtiene la respuesta
@@ -155,6 +157,8 @@ class ExtractorView(QWidget):
                 
         else:
             QMessageBox.critical(self, "Error", "Error al procesar el archivo.")
+            self.center_widget.change_label_text("Upload your file and let the system handle the rest. Using advanced algorithms, the extractor analyzes the file and retrieves all available metadata, including file type, size, creation and modification dates, author information, and more. This tool provides a clear and organized summary of the data embedded in your file, giving you quick insights without any additional effort.")
+            QApplication.processEvents()
 
     def showNewRow(self):
         self.right_layout.add_new_row(self.result_matrix)
