@@ -1,11 +1,13 @@
 # main.py
 
 from PyQt5.QtWidgets import QApplication
-from views.video_to_images import VideoToImagesView
+
+from views.login import LoginView
 import sys
 
+jwt_token = None
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = VideoToImagesView()
+    window = LoginView()
     window.show()
     sys.exit(app.exec_())

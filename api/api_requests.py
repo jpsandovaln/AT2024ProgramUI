@@ -1,6 +1,8 @@
 import requests
 import json
 import os
+from singleton import app_state
+from singleton.app_state import AppState
 
 def send_to_ConvertService(file_path, endpoint):
     # Endpoint URL
@@ -8,17 +10,24 @@ def send_to_ConvertService(file_path, endpoint):
 
     # Prepare the file for the POST request
     files = {'file': open(file_path, 'rb')}
+    # Access the JWT token from AppState
+    token = AppState().jwt_token
+    if not token:
+        return None
+
+    # Include the JWT token in the headers
+    headers = {
+        'Authorization': f'Bearer {jwt_token}'
+    }
 
     try:
         # Send the request
-        response = requests.post(url, files=files)
-        print(response)
+        response = requests.post(url, files=files, headers=headers)
 
         # Check if the request was successful
         if response.status_code == 200:
             return response.json()  # Return JSON response if successful
         else:
-            print(f"Error: {response.status_code} - {response.text}")
             return None
     except Exception as e:
         print(f"Exception: {e}")
@@ -215,3 +224,29 @@ def send_to_ConvertService_AudioToAudio(file_path, endpoint, format, bitrate=Non
         except Exception as e:
             print(f"Exception: {e}")
             return None
+def authenticate_user(self, username, password):
+    data = {
+        "username": username,
+        "password": password
+    }
+    global jwt_token
+
+    try:
+        # We make the request to Post for authenticate the user
+        response = requests.post("http://localhost:9090/api/login", json=data)
+
+        if response.status_code == 200:
+            # If success authentication, we obtain the token
+
+            jwt_token = response.json().get("access_token")
+
+            if jwt_token:
+                AppState().jwt_token = jwt_token
+                return True, jwt_token  
+            else:
+                return False, "Token not found"
+        else:
+            # If authentication fails
+            return False, response.text
+    except Exception as e:
+        return False, str(e)
