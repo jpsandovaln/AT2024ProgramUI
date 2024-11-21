@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import  QWidget, QVBoxLayout, QLabel, \
-    QLineEdit, QComboBox, QPushButton
+    QLineEdit, QComboBox
 from .Button import Button, SearchButton
 
 
