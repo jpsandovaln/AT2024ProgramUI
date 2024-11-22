@@ -7,3 +7,4 @@ PyQt5_sip==12.15.0
 requests==2.32.3
 urllib3==2.2.3
 python-vlc==3.0.21203
+python-dotenv==1.0.1

@@ -9,10 +9,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 IP_DIRECTION = os.getenv('IP_DIRECTION')
+ML_PORT = os.getenv('ML_PORT')
+CONV_PORT = os.getenv('CONV_PORT')
 
 def send_to_ConvertService(file_path, endpoint):
     # Endpoint URL
-    url = f"http://{IP_DIRECTION}:9090" + endpoint
+    url = f"http://{IP_DIRECTION}:{ML_PORT}" + endpoint
 
     # Prepare the file for the POST request
     files = {'file': open(file_path, 'rb')}
@@ -35,7 +37,7 @@ def send_to_ConvertService(file_path, endpoint):
 
 def send_file_to_MLservice(data, endpoint, file_path=None):
     # URL base del servicio ML
-    url = f"http://{IP_DIRECTION}:5000" + endpoint
+    url = f"http://{IP_DIRECTION}:{CONV_PORT}" + endpoint
 
     files = None
     # Si se pasó una ruta de archivo, prepara el archivo
@@ -69,7 +71,7 @@ def send_file_to_MLservice(data, endpoint, file_path=None):
 
 def send_to_MLservice(data, endpoint):
     # URL base del servicio ML
-    base_url = f"http://{IP_DIRECTION}:5000"
+    base_url = f"http://{IP_DIRECTION}:{CONV_PORT}"
     url = base_url + endpoint
         
     # Agrega el encabezado Content-Type explícitamente (opcional)
@@ -93,7 +95,7 @@ def send_to_MLservice(data, endpoint):
 
 def send_to_ConvertService_VideoToVideo(file_path, endpoint, format, fps=None, vcodec=None, acodec=None, achannel=None):
     # Endpoint URL: 
-    url = f"http://{IP_DIRECTION}:9090" + endpoint 
+    url = f"http://{IP_DIRECTION}:{ML_PORT}" + endpoint 
     
     # Prepare the file for the POST request
     files = {'file': open(file_path, 'rb')}
@@ -122,7 +124,7 @@ def send_to_ConvertService_VideoToVideo(file_path, endpoint, format, fps=None, v
         return None
 
 def send_to_ConvertService_ImageToImage(file_path, endpoint, format, resize_type=None, resize_width=None, resize_height=None, rotate_angle=None, grayscale=False, blur=False, contour=False, detail=False, edge_enhance=False, edge_enhance_more=False, emboss=False, find_edges=False, sharpen=False, smooth=False, smooth_more=False):
-    url = f"http://{IP_DIRECTION}:9090" + endpoint
+    url = f"http://{IP_DIRECTION}:{ML_PORT}" + endpoint
 
     # Open the file in binary mode and prepare it for the POST request
     with open(file_path, 'rb') as file:
@@ -185,7 +187,7 @@ def send_to_ConvertService_ImageToImage(file_path, endpoint, format, resize_type
             return None
 
 def send_to_ConvertService_AudioToAudio(file_path, endpoint, format, bitrate=None, channels=None, samplerate=None, volume=None, languagechannel=None, speed=None):
-    url = f"http://{IP_DIRECTION}:9090" + endpoint
+    url = f"http://{IP_DIRECTION}:{ML_PORT}" + endpoint
 
     # Open the file in binary mode and prepare it for the POST request
     with open(file_path, 'rb') as file:
@@ -232,7 +234,7 @@ def authenticate_user(self, username, password):
 
     try:
         # We make the request to Post for authenticate the user
-        response = requests.post(f"http://{IP_DIRECTION}:9090/api/login", json=data)
+        response = requests.post(f"http://{IP_DIRECTION}:{ML_PORT}/api/login", json=data)
 
         if response.status_code == 200:
             # If success authentication, we obtain the token
@@ -253,7 +255,7 @@ def authenticate_user(self, username, password):
 
 def send_to_ConvertService_GetMetadata(file_path, endpoint):
     # Endpoint URL: 
-    url = f"http://{IP_DIRECTION}:9090" + endpoint 
+    url = f"http://{IP_DIRECTION}:{ML_PORT}" + endpoint 
     
     # Prepare the file for the POST request
     files = {'file': open(file_path, 'rb')}
