@@ -234,7 +234,7 @@ def authenticate_user(self, username, password):
 
     try:
         # We make the request to Post for authenticate the user
-        response = requests.post(f"http://{IP_DIRECTION}:{ML_PORT}/api/login", json=data)
+        response = requests.post(f"http://{IP_DIRECTION}:{CONV_PORT}/api/login", json=data)
 
         if response.status_code == 200:
             # If success authentication, we obtain the token
