@@ -100,13 +100,13 @@ class VideoToImagesView(QWidget):
 
     def open_left_window(self):
         # Importar VideoToVideoWindow solo cuando sea necesario
-        from views.extractor import ExtractorView
+        from views.audio_to_audio import AudioToAudioView
 
         # Cerrar la ventana principal
         self.close()
 
         # Crear y mostrar la nueva ventana
-        self.new_window = ExtractorView()
+        self.new_window = AudioToAudioView()
         self.new_window.show()
 
     def update_function_name(self, new_name):
