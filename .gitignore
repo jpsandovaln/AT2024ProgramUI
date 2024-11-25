@@ -1,0 +1,23 @@
+# Virtual environment
+venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variable files
+.env
+
+# IDE and editor files
+.vscode/
+.idea/
+
+# macOS system files
+.DS_Store
+
+
+tempCodeRunnerFile.py
+/downloaded_files/
+/input_files/
