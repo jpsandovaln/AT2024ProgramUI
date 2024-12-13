@@ -170,7 +170,8 @@ class VideoToImagesView(QWidget):
         if response and response.get("download_URL"):
             # Extrae la URL de descarga de la respuesta
             zip_url = response["download_URL"]
-
+            print(f'URL ZIP: {zip_url}')
+            zip_url_modify = zip_url.replace('dev-converter.at04.devops.jala.university', '10.27.5.151:9090')
             # Descarga el archivo ZIP y guarda su ruta absoluta, el folder extraido y el nombre del zip file
             file_info = download_file(zip_url)
 
@@ -214,7 +215,7 @@ class VideoToImagesView(QWidget):
                     "word": model_type_to_send,
                     "model_type": "object",
                     "confidence_threshold": confidence_threshold,
-                    "zip_url": zip_url
+                    "zip_url": zip_url_modify
                 }
                 # Envía los datos al servicio ML
                 ml_service_response = send_file_to_MLservice(combined_data, endpoint, image_path)
@@ -224,7 +225,7 @@ class VideoToImagesView(QWidget):
                     "word": word,
                     "model_type": model_type_to_send,
                     "confidence_threshold": confidence_threshold,
-                    "zip_url": zip_url
+                    "zip_url": zip_url_modify
                 }
                 # Envía los datos al servicio ML
                 ml_service_response = send_to_MLservice(combined_data, endpoint)
